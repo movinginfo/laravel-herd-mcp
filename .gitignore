@@ -2,3 +2,7 @@ node_modules/
 dist/
 *.js.map
 .env
+%TEMP%/
+.claude/
+debug.log
+herd.yml
