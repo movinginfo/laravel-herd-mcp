@@ -18,7 +18,7 @@ import { registerSharingTools } from './tools/sharing.js';
 import { registerLogsTools } from './tools/logs.js';
 import { registerDebugTools } from './tools/debug.js';
 import { registerDevtoolsTools } from './tools/devtools.js';
-import { registerSetupTools } from './tools/setup.js';
+import { registerSetupTools, registerStatusTools, registerPatchHerdUiTool } from './tools/setup.js';
 
 export interface ServerOptions {
   herdPath?: string;
@@ -31,7 +31,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
 
   const server = new McpServer({
     name: 'laravel-herd-mcp',
-    version: '1.0.0',
+    version: '0.1.8',
   });
 
   // Register all tool groups
@@ -50,6 +50,8 @@ export function createServer(options: ServerOptions = {}): McpServer {
   registerDebugTools(server, runner);
   registerDevtoolsTools(server, runner);
   registerSetupTools(server, herdConfig, runner);
+  registerStatusTools(server, herdConfig);
+  registerPatchHerdUiTool(server);
 
   return server;
 }

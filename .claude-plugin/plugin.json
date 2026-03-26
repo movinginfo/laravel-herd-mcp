@@ -1,0 +1,13 @@
+{
+  "name": "laravel-herd-mcp",
+  "version": "0.1.8",
+  "description": "Full Laravel Herd control for Claude Code — 42 CLI tools for sites, PHP, SSL, proxies, NVM, services, logs, debug, devtools and more.",
+  "author": {
+    "name": "movinginfo"
+  },
+  "homepage": "https://github.com/movinginfo/laravel-herd-mcp",
+  "repository": "https://github.com/movinginfo/laravel-herd-mcp",
+  "license": "MIT",
+  "keywords": ["laravel", "herd", "mcp", "php", "windows"],
+  "mcpServers": "./.mcp.json"
+}
