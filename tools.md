@@ -1,6 +1,6 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **170 tools** across 16 categories. All tools are available in the single `laravel-herd` MCP server.
+> **179 tools** across 17 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
 
@@ -266,6 +266,26 @@
 
 ---
 
+## Laravel Debugbar 📦 `fruitcake/laravel-debugbar`
+
+> Installs, toggles, and reads Laravel Debugbar storage files — get query data, exceptions, timeline, and more directly in Claude without opening a browser.
+>
+> **Workflow:** `debugbar_install` once → make requests in browser → `debugbar_requests` to see what happened → `debugbar_disable` when done debugging.
+
+| Tool | Description |
+|------|-------------|
+| `debugbar_install` | Install `fruitcake/laravel-debugbar --dev`, publish config, set `DEBUGBAR_ENABLED=true` |
+| `debugbar_enable` | Set `DEBUGBAR_ENABLED=true` in `.env` |
+| `debugbar_disable` | Set `DEBUGBAR_ENABLED=false` in `.env` |
+| `debugbar_status` | Show installed/enabled status, stored request count and storage size |
+| `debugbar_requests` | List recent captured requests — method, URL, duration, query count, memory, exceptions |
+| `debugbar_request_detail` | Full data for one request: route, all queries, timeline, views, auth, cache, events |
+| `debugbar_queries` | All SQL queries across recent requests — supports `slow_only` filter for N+1 detection |
+| `debugbar_exceptions` | All exceptions captured across recent requests with file/line info |
+| `debugbar_clear` | Delete all stored debugbar JSON files from `storage/debugbar/` |
+
+---
+
 ## Direct Database Client
 
 > Native database access for **MySQL, MariaDB, PostgreSQL, and SQLite** — both local Herd databases and remote servers.
@@ -383,7 +403,8 @@
 | Artisan | 10 | Generic + common workflows |
 | Composer | 12 | Full dependency management |
 | Laravel Boost | 5 | 📦 AI coding guidelines |
+| Laravel Debugbar | 9 | 📦 Install, toggle, read queries/exceptions/timeline |
 | Direct Database Client | 7 | Native SQL for MySQL/MariaDB/PostgreSQL/SQLite |
 | Laravel Forge CLI | 25 | Remote server management via forge CLI |
 | Setup & Integration | 3 | Claude Desktop/Code/Herd config |
-| **Total** | **170** | |
+| **Total** | **179** | |
