@@ -1,6 +1,6 @@
 {
   "name": "laravel-herd-mcp",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "MCP server for full Laravel Herd control on Windows — 42 tools for sites, PHP, SSL, proxies, services, NVM and more",
   "main": "dist/index.js",
   "bin": {

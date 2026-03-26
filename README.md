@@ -26,7 +26,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **42 MCP tools** covering every Herd feature
+- **60 MCP tools** covering every Herd feature
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other clients
 - **Auto-detects** your Herd installation, no manual path config needed
 - **Herd Free + Pro** — Pro features degrade gracefully on Free
@@ -218,8 +218,37 @@ Connect your MCP client to `http://localhost:3333/sse`.
 
 | Tool | Description |
 |------|-------------|
-| `run_composer` | Run Composer command via Herd's PHP |
-| `create_laravel_project` | Create new Laravel project |
+| `run_composer` | Run any Composer command (generic) |
+| `create_laravel_project` | Create new Laravel project via `laravel new` |
+
+### Artisan (php artisan)
+
+| Tool | Description |
+|------|-------------|
+| `artisan` | Run any `php artisan` command in a Laravel project |
+| `artisan_make` | Scaffold classes: model, controller, migration, seeder, factory, middleware, command, event, listener, job, mail, notification, policy, request, resource, rule, cast, scope, channel, provider |
+| `artisan_migrate` | Run migrations: migrate, fresh, rollback, status, db:seed |
+| `artisan_route_list` | List all registered routes (with filter and JSON output) |
+| `artisan_optimize` | Cache or clear: optimize, optimize:clear, config:cache/clear, route:cache/clear, view:clear, cache:clear, event:cache/clear |
+| `artisan_about` | Display Laravel app info (version, environment, drivers) |
+| `artisan_db_seed` | Seed the database (specific seeder or all) |
+| `artisan_queue` | Manage queues: list failed jobs, retry (single/all), flush |
+| `artisan_setup` | Run key:generate or storage:link |
+
+### Composer
+
+| Tool | Description |
+|------|-------------|
+| `composer_require` | Add packages (`--dev` supported, version constraints) |
+| `composer_remove` | Remove packages |
+| `composer_install` | Install from composer.lock (`--no-dev`, `--no-scripts`, `--optimize`) |
+| `composer_update` | Update packages (all or specific) |
+| `composer_outdated` | List packages with available updates |
+| `composer_show` | Show installed packages or details for one package |
+| `composer_dump_autoload` | Regenerate autoloader (`--classmap-authoritative`) |
+| `composer_validate` | Validate composer.json integrity |
+| `composer_search` | Search Packagist for packages |
+| `composer_scripts` | List or run scripts defined in composer.json |
 
 ### Setup
 
@@ -227,7 +256,7 @@ Connect your MCP client to `http://localhost:3333/sse`.
 |------|-------------|
 | `setup_integrations` | Auto-configure Claude Desktop + Claude Code + Herd |
 
-**Total: 42 tools**
+**Total: 60 tools**
 
 ---
 
