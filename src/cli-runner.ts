@@ -103,6 +103,30 @@ export class CliRunner {
     return this.run(this.config.nvmExe, args);
   }
 
+  /**
+   * Run a Laravel Forge CLI command.
+   * Forge is installed globally via `composer global require laravel/forge-cli`.
+   * We look for forge.bat in APPDATA\Composer\vendor\bin, then fall back to PATH.
+   */
+  forge(args: string[], cwd?: string): CliResult {
+    const forgeBat = this.detectForge();
+    return this.run(forgeBat, args, cwd);
+  }
+
+  detectForge(): string {
+    const os = require('os');
+    const fs = require('fs');
+    // Try Composer global bin on Windows
+    const appData = process.env.APPDATA ?? path.join(os.homedir(), 'AppData', 'Roaming');
+    const composerBin = path.join(appData, 'Composer', 'vendor', 'bin', 'forge.bat');
+    if (fs.existsSync(composerBin)) return composerBin;
+    // Try Composer global bin (non-Windows or alternate location)
+    const composerBinUnix = path.join(os.homedir(), '.composer', 'vendor', 'bin', 'forge');
+    if (fs.existsSync(composerBinUnix)) return composerBinUnix;
+    // Fall back to PATH
+    return 'forge';
+  }
+
   spawnDetached(exe: string, args: string[], cwd?: string): number {
     const child = spawn(exe, args, {
       cwd,

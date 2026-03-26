@@ -1,12 +1,12 @@
 # laravel-herd-mcp
 
-> **138 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
+> **163 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
 
 [![npm version](https://img.shields.io/npm/v/laravel-herd-mcp.svg)](https://www.npmjs.com/package/laravel-herd-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Laravel Herd](https://img.shields.io/badge/Laravel%20Herd-1.27%2B-red.svg)](https://herd.laravel.com)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blue.svg)](https://modelcontextprotocol.io)
-[![Tools](https://img.shields.io/badge/tools-138-brightgreen.svg)](tools.md)
+[![Tools](https://img.shields.io/badge/tools-163-brightgreen.svg)](tools.md)
 
 ---
 
@@ -29,7 +29,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **138 MCP tools** across 14 categories — [see full list →](tools.md)
+- **163 MCP tools** across 15 categories — [see full list →](tools.md)
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other MCP clients
 - **Auto-detects** your Herd installation, no manual path configuration needed
 - **Herd Free + Pro** — all Pro-only features degrade gracefully with clear messages
@@ -150,7 +150,7 @@ Connect your MCP client to `http://localhost:3333/sse`.
 
 ## Available Tools
 
-> **138 tools** in a single `laravel-herd` MCP server.
+> **163 tools** in a single `laravel-herd` MCP server.
 > 📄 **[Full tool reference → tools.md](tools.md)**
 
 | Category | Tools | Description |
@@ -168,6 +168,7 @@ Connect your MCP client to `http://localhost:3333/sse`.
 | **Artisan** | 10 | Generic + `make:*`, migrate, routes, optimize, seed |
 | **Composer** | 12 | require, remove, install, update, search, scripts |
 | **Laravel Boost** | 5 | AI coding guidelines *(laravel/boost)* |
+| **Laravel Forge CLI** | 25 | Remote server management: deploy, env, daemons, nginx, php *(forge CLI)* |
 | **Setup & Integration** | 3 | Auto-configure Claude Desktop + Claude Code + Herd |
 
 ---

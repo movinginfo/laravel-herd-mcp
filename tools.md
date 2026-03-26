@@ -1,6 +1,6 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **138 tools** across 14 categories. All tools are available in the single `laravel-herd` MCP server.
+> **163 tools** across 15 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
 
@@ -266,6 +266,75 @@
 
 ---
 
+## Laravel Forge CLI
+
+> Requires `laravel/forge-cli` installed globally (`forge_install` or `composer global require laravel/forge-cli`).
+> Authenticate once with `forge_login`.
+
+### Installation & Auth
+| Tool | Description |
+|------|-------------|
+| `forge_install` | Install Laravel Forge CLI globally via `composer global require laravel/forge-cli` |
+| `forge_login` | Authenticate with your Forge API token |
+
+### Servers
+| Tool | Description |
+|------|-------------|
+| `forge_server_list` | List all servers on your Forge account |
+| `forge_server_current` | Show the currently active server |
+| `forge_server_switch` | Switch the active server |
+| `forge_ssh` | Show SSH connection info for a server/site |
+
+### Sites
+| Tool | Description |
+|------|-------------|
+| `forge_site_list` | List all sites on the active server |
+| `forge_site_logs` | View recent logs for a site |
+| `forge_command` | Run a shell command on a Forge site |
+
+### Environment
+| Tool | Description |
+|------|-------------|
+| `forge_env_pull` | Pull `.env` from a Forge site to a local file |
+| `forge_env_push` | Push a local `.env` to a Forge site |
+
+### Deployments
+| Tool | Description |
+|------|-------------|
+| `forge_deploy` | Trigger a deployment for a site |
+| `forge_deploy_logs` | View deployment logs |
+| `forge_deploy_monitor` | Monitor ongoing deployments |
+
+### Daemons (Supervisor)
+| Tool | Description |
+|------|-------------|
+| `forge_daemon_status` | Show status of all Supervisor daemons |
+| `forge_daemon_restart` | Restart a daemon |
+| `forge_daemon_logs` | View daemon logs |
+
+### Database Service
+| Tool | Description |
+|------|-------------|
+| `forge_database_status` | Show database service status |
+| `forge_database_restart` | Restart the database service |
+| `forge_database_logs` | View database service logs |
+
+### Nginx
+| Tool | Description |
+|------|-------------|
+| `forge_nginx_status` | Show Nginx status |
+| `forge_nginx_restart` | Restart Nginx |
+| `forge_nginx_logs` | View Nginx access or error logs |
+
+### PHP-FPM
+| Tool | Description |
+|------|-------------|
+| `forge_php_status` | Show PHP-FPM status (by version) |
+| `forge_php_restart` | Restart PHP-FPM (by version) |
+| `forge_php_logs` | View PHP-FPM logs (by version) |
+
+---
+
 ## Setup & Integration
 
 | Tool | Description |
@@ -293,5 +362,6 @@
 | Artisan | 10 | Generic + common workflows |
 | Composer | 12 | Full dependency management |
 | Laravel Boost | 5 | 📦 AI coding guidelines |
+| Laravel Forge CLI | 25 | Remote server management via forge CLI |
 | Setup & Integration | 3 | Claude Desktop/Code/Herd config |
-| **Total** | **138** | |
+| **Total** | **163** | |
