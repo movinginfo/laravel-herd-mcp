@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a TypeScript/Node.js MCP server (`laravel-herd-mcp`) that gives Claude full control over Laravel Herd v1.27 on Windows via 43 tools across stdio and HTTP/SSE transports.
+**Goal:** Build a TypeScript/Node.js MCP server (`laravel-herd-mcp`) that gives Claude full control over Laravel Herd v1.27 on Windows via 42 tools across stdio and HTTP/SSE transports.
 
 **Architecture:** Two communication channels — Herd's internal HTTP API (port read from `config.json`, default `2304`) for structured JSON responses, and Herd's `.bat` CLI wrappers for operations not exposed by the API. All tools return clean structured objects; ANSI codes are stripped from CLI output.
 

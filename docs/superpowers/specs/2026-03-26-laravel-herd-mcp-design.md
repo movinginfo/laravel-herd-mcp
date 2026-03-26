@@ -11,7 +11,9 @@
 
 A TypeScript/Node.js MCP server that gives Claude Desktop and Claude Code full programmatic control over a Laravel Herd development environment on Windows.
 
-It uses a **Hybrid** architecture: our TS server owns all CLI-based tools (38+), while Herd's built-in `herd-mcp.phar` is registered as a second MCP server covering the 13 HTTP-API tools. A `setup_integrations` tool auto-configures both Claude Desktop and Claude Code, and writes a Claude Code entry into Herd's `integrations.json`.
+It uses a **Hybrid** architecture: our TS server owns all CLI-based tools (42 total), while Herd's built-in `herd-mcp.phar` is registered as a second MCP server covering the 13 HTTP-API tools. A `setup_integrations` tool auto-configures both Claude Desktop and Claude Code, and writes a Claude Code entry into Herd's `integrations.json`.
+
+**Our TS server makes no HTTP calls.** All HTTP API communication (sites, PHP versions, services, debug) is delegated to `herd-mcp.phar` which already handles it via `curl` to port 9001.
 
 ---
 
@@ -32,15 +34,15 @@ Claude Desktop / Claude Code
         ├── MCP Server 1: laravel-herd-mcp (Node.js/TS)   ← this project
         │     ├── Transport: stdio OR HTTP/SSE
         │     ├── 42 tools → herd.bat / php.bat / composer.bat / laravel.bat / nvm.exe
-        │     └── 1 setup tool → writes all 3 config targets
+        │     └── No HTTP calls — all HTTP-API tools delegated to herd-mcp.phar
         │
         └── MCP Server 2: herd-mcp.phar (PHP/stdio)        ← shipped with Herd
-              └── 13 tools → Herd HTTP API on port 9001
+              └── 13 tools → Herd HTTP API on port 9001 (read from config.json)
 ```
 
 ### herd-mcp.phar (existing, do not replace)
 
-Discovered by reverse-engineering the phar. Uses `symfony/mcp-sdk`, namespace `BeyondCode\HerdMCP`. Communicates with Herd app via `curl` to `http://127.0.0.1:{apiPort}` (default 9001, read from `config.json`).
+Discovered by reverse-engineering the phar. Uses `symfony/mcp-sdk`, namespace `BeyondCode\HerdMCP`. Communicates with Herd app via `curl` to `http://127.0.0.1:{apiPort}`. Port is read from `%USERPROFILE%\.config\herd\config\config.json` key `apiPort` (PHP class default `2304` if key absent; Herd v1.27 typically configures `9001`).
 
 **Tools it provides:**
 - `get_all_sites`, `get_site_information`
@@ -58,7 +60,7 @@ Discovered by reverse-engineering the phar. Uses `symfony/mcp-sdk`, namespace `B
 
 ### CLI Runner (`src/cli-runner.ts`)
 
-All CLI tools spawn Windows `.bat` wrappers:
+All CLI tools spawn Windows `.bat` wrappers. ANSI escape codes are stripped from all output before returning as tool result text.
 
 ```ts
 const BINS = {
@@ -70,19 +72,24 @@ const BINS = {
 }
 ```
 
-Execution: `child_process.execFile` with `shell: true` (required for `.bat`), `timeout: 30000ms`, stdout/stderr captured and returned as tool result text.
+Execution: `child_process.execFile` with `shell: true` (required for `.bat`), `timeout: 30000ms`, stdout/stderr captured, ANSI stripped via `strip-ansi`, returned as tool result text.
 
 ### Herd Detection (`src/herd-detector.ts`)
 
 1. Check `HERD_PATH` env var — use if set
-2. Check `--herd-path` CLI flag
+2. Check `--herd-path` CLI flag — use if provided
 3. Auto-detect: `%USERPROFILE%\.config\herd\bin\herd.bat`
-4. Fall back to `herd.bat` on PATH
-5. Read `apiPort` from `%USERPROFILE%\.config\herd\config\config.json` (default `9001`)
+4. Fall back to PATH lookup via `where herd.bat` (Windows `where` command — not `execFile` directly, as `.bat` on PATH requires shell resolution)
+5. Read `apiPort` from `%USERPROFILE%\.config\herd\config\config.json`, key `apiPort` (default: `2304` if key absent)
 
 ### Setup Tool (`src/tools/setup.ts`)
 
-`setup_integrations` tool writes to **3 targets**:
+`setup_integrations` tool writes to **3 targets**. On each target:
+- **File missing** → create from scratch with correct structure
+- **File exists, valid JSON** → **merge** our keys, preserve all other existing keys (never overwrite unrelated mcpServer entries or other config)
+- **File exists, malformed** → back up as `<filename>.bak.<timestamp>` then overwrite
+
+The PHP binary path for `herd-mcp.phar` is resolved **dynamically at setup time** by running `herd which-php` — never hardcoded — to handle any installed PHP version (8.2, 8.3, 8.4, etc.).
 
 #### Target 1 — Claude Desktop
 File: `%APPDATA%\Claude\claude_desktop_config.json`
@@ -94,13 +101,14 @@ File: `%APPDATA%\Claude\claude_desktop_config.json`
       "args": ["C:/path/to/laravel-herd-mcp/dist/index.js"]
     },
     "laravel-herd-phar": {
-      "command": "C:/Users/.../herd/bin/php84/php.exe",
-      "args": ["C:/Users/.../herd/bin/herd-mcp.phar"],
-      "env": { "SITE_PATH": "${workspaceFolder}" }
+      "command": "C:/Users/<user>/.config/herd/bin/php84/php.exe",
+      "args": ["C:/Users/<user>/.config/herd/bin/herd-mcp.phar"],
+      "env": {}
     }
   }
 }
 ```
+Note: `SITE_PATH` is NOT set in Claude Desktop config — it is context-dependent and cannot be statically resolved. The phar runs without site-awareness in Claude Desktop; site-aware tools are unavailable unless `SITE_PATH` is passed at invocation time.
 
 #### Target 2 — Claude Code
 File: `%USERPROFILE%\.claude\settings.json`
@@ -113,9 +121,10 @@ File: `%USERPROFILE%\.claude\settings.json`
       "type": "stdio"
     },
     "laravel-herd-phar": {
-      "command": "C:/Users/.../herd/bin/php84/php.exe",
-      "args": ["C:/Users/.../herd/bin/herd-mcp.phar"],
-      "type": "stdio"
+      "command": "C:/Users/<user>/.config/herd/bin/php84/php.exe",
+      "args": ["C:/Users/<user>/.config/herd/bin/herd-mcp.phar"],
+      "type": "stdio",
+      "env": {}
     }
   }
 }
@@ -148,15 +157,17 @@ laravel-herd-mcp/
 ├── src/
 │   ├── index.ts                    # CLI entry: parse --http/--port/--herd-path flags
 │   ├── server.ts                   # MCP server factory, register all tools
-│   ├── herd-detector.ts            # Auto-detect Herd paths and API port
+│   ├── herd-detector.ts            # Auto-detect Herd paths (no HTTP calls)
 │   ├── cli-runner.ts               # Spawn herd.bat / php.bat / composer.bat / nvm
+│   ├── tool-result.ts              # Shared helpers: textResult(text), errorResult(msg) used by all tools
+│   │                               # Note: no http-client.ts — HTTP API is phar's responsibility
 │   └── tools/
 │       ├── sites.ts                # list_parked_sites, list_all_sites, park, unpark, list_parked_paths
 │       ├── links.ts                # link_site, unlink_site, list_links
 │       ├── ssl.ts                  # list_secured_sites
 │       ├── proxies.ts              # create_proxy, remove_proxy, list_proxies
 │       ├── php.ts                  # switch_php_version, which_php, update_php_version, edit_php_ini, list_isolated_sites
-│       ├── services.ts             # list_available_service_types, get_service_versions, clone_service, delete_service (Pro)
+│       ├── services.ts             # list_available_service_types, get_service_versions, clone_service, delete_service (Pro CLI)
 │       ├── core.ts                 # start_herd, stop_herd, restart_herd
 │       ├── debug.ts                # run_php_with_debug, run_php_with_coverage, tail_log
 │       ├── sharing.ts              # share_site, get_share_url
@@ -179,7 +190,9 @@ laravel-herd-mcp/
 
 ---
 
-## Complete Tool List (42 tools)
+## Complete Tool List (42 tools — source of truth)
+
+**Count verification:** 12+1+3+5+4+3+3+2+3+3+2+1 = **42** ✓
 
 ### Sites (12)
 
@@ -222,7 +235,9 @@ laravel-herd-mcp/
 | `edit_php_ini` | `herd ini [version]` | Open php.ini in configured IDE |
 | `list_isolated_sites` | `herd isolated` | List all sites using isolated PHP versions |
 
-### Services — Pro (4)
+### Services — Pro CLI (4)
+
+> Note: HTTP-API service tools (install, start/stop, list) belong to `herd-mcp.phar`. These 4 are CLI-only.
 
 | Tool | Command | Description |
 |------|---------|-------------|
@@ -296,12 +311,13 @@ MCP Server (stdio/HTTP)
     ├── CLI tools ──► cli-runner.ts ──► execFile(herd.bat / php.bat / ...)
     │                                         │
     │                                         ▼
-    │                                   stdout/stderr
+    │                               strip-ansi(stdout/stderr)
     │                                         │
     │                                         ▼
     │                                   ToolResult (text)
     │
-    └── setup tool ──► writes JSON to 3 config files
+    └── setup tool ──► resolve PHP path via herd which-php
+                   ──► merge/write JSON to 3 config files
 ```
 
 ---
@@ -312,18 +328,20 @@ MCP Server (stdio/HTTP)
 |----------|-----------|
 | Herd not found | Clear error: "Herd not found at `<path>`. Set HERD_PATH env var or use --herd-path." |
 | Command timeout (30s) | Error: "Command timed out after 30s" |
-| Non-zero exit code | Return stderr as error text (not throw) |
-| Pro feature on Free | herd.bat output returned as-is (Herd prints its own "Pro required" message) |
-| Config file missing | `setup_integrations` creates file from scratch with correct defaults |
-| Config file malformed | `setup_integrations` backs up existing file then overwrites |
+| Non-zero exit code | Return stderr as error text (not throw) — lets Herd's own messages pass through |
+| Pro feature on Free | `herd.bat` output returned as-is (Herd prints its own "Pro required" message) |
+| Config file missing | `setup_integrations` creates file from scratch with minimal valid structure |
+| Config file exists, valid JSON | `setup_integrations` **merges** our keys, preserving all other existing entries |
+| Config file malformed | `setup_integrations` backs up as `<file>.bak.<timestamp>` then overwrites |
+| PHP path resolution fails | `setup_integrations` falls back to scanning `%USERPROFILE%\.config\herd\bin\php*\php.exe` |
 
 ---
 
 ## Testing Strategy
 
-- **Unit tests** (Vitest): mock `child_process.execFile`, test each tool's argument construction
+- **Unit tests** (Vitest): mock `child_process.execFile`, test each tool's argument construction and ANSI stripping
 - **Integration tests**: run against real `herd.bat` in CI (skipped if `HERD_BIN` not set)
-- **Setup tests**: mock filesystem, verify correct JSON written to all 3 config targets
+- **Setup tests**: mock filesystem (`vol` from `memfs`), verify correct JSON merged into all 3 config targets, verify merge preserves existing keys, verify backup created on malformed input
 
 ---
 
@@ -336,34 +354,38 @@ MCP Server (stdio/HTTP)
   "bin": { "laravel-herd-mcp": "dist/index.js" },
   "scripts": {
     "build": "tsc",
-    "dev": "ts-node src/index.ts",
+    "dev": "tsx src/index.ts",
     "test": "vitest"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "express": "^4.18.0",
-    "zod": "^3.22.0"
+    "zod": "^3.22.0",
+    "strip-ansi": "^7.0.0"
   },
   "devDependencies": {
     "typescript": "^5.3.0",
+    "tsx": "^4.0.0",
     "vitest": "^1.0.0",
     "@types/node": "^20.0.0",
-    "@types/express": "^4.17.0"
+    "@types/express": "^4.17.0",
+    "memfs": "^4.0.0"
   }
 }
 ```
 
 ---
 
-## Claude Desktop Config (after setup)
+## Final Config Examples (after setup)
 
-`%APPDATA%\Claude\claude_desktop_config.json`:
+### Claude Desktop — `%APPDATA%\Claude\claude_desktop_config.json`
+
 ```json
 {
   "mcpServers": {
     "laravel-herd": {
       "command": "node",
-      "args": ["C:/path/to/laravel-herd-mcp/dist/index.js"]
+      "args": ["C:/Users/<user>/AppData/Roaming/npm/node_modules/laravel-herd-mcp/dist/index.js"]
     },
     "laravel-herd-phar": {
       "command": "C:/Users/<user>/.config/herd/bin/php84/php.exe",
@@ -374,29 +396,28 @@ MCP Server (stdio/HTTP)
 }
 ```
 
-## Claude Code Config (after setup)
+### Claude Code — `%USERPROFILE%\.claude\settings.json`
 
-`%USERPROFILE%\.claude\settings.json`:
 ```json
 {
   "mcpServers": {
     "laravel-herd": {
       "command": "node",
-      "args": ["C:/path/to/laravel-herd-mcp/dist/index.js"],
+      "args": ["C:/Users/<user>/AppData/Roaming/npm/node_modules/laravel-herd-mcp/dist/index.js"],
       "type": "stdio"
     },
     "laravel-herd-phar": {
       "command": "C:/Users/<user>/.config/herd/bin/php84/php.exe",
       "args": ["C:/Users/<user>/.config/herd/bin/herd-mcp.phar"],
-      "type": "stdio"
+      "type": "stdio",
+      "env": {}
     }
   }
 }
 ```
 
-## Herd integrations.json (after setup)
+### Herd — `%USERPROFILE%\.config\herd\config\integrations.json`
 
-`%USERPROFILE%\.config\herd\config\integrations.json`:
 ```json
 {
   "savedIntegrations": [
