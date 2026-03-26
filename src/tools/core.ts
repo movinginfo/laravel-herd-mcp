@@ -46,12 +46,11 @@ export function registerCoreTools(server: McpServer, runner: CliRunner): void {
     } catch (e) { return errorResult(e); }
   });
 
-  server.tool('open_site_in_ide', 'Open a site directory in the configured IDE', {
-    name: z.string().optional().describe('Site name (omit for current directory)'),
-  }, async ({ name }) => {
+  server.tool('open_site_in_ide', 'Open the current site directory in the configured IDE', {
+    cwd: z.string().optional().describe('Site directory path (herd edit opens the current directory)'),
+  }, async ({ cwd }) => {
     try {
-      const args = name ? ['edit', name] : ['edit'];
-      const result = runner.herd(args);
+      const result = runner.herd(['edit'], cwd);
       runner.assertSuccess(result, 'open_site_in_ide');
       return textResult(result.stdout || 'Opened in IDE.');
     } catch (e) { return errorResult(e); }

@@ -4,14 +4,14 @@ import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
 
 export function registerSharingTools(server: McpServer, runner: CliRunner): void {
-  server.tool('share_site', 'Share a local site via Expose tunnel (starts sharing in background)', {
-    site: z.string().optional().describe('Site name or URL to share (omit for current directory)'),
-    subdomain: z.string().optional().describe('Custom subdomain'),
+  server.tool('share_site', 'Share a local Herd site via Expose tunnel', {
+    site: z.string().describe('Site hostname to share e.g. "myapp.test"'),
+    subdomain: z.string().optional().describe('Custom subdomain for the tunnel'),
   }, async ({ site, subdomain }) => {
     try {
-      const args = ['share', ...(site ? [site] : []), ...(subdomain ? [`--subdomain=${subdomain}`] : [])];
-      const result = runner.herd(args);
-      return textResult(result.stdout || 'Sharing started. Use get_share_url to retrieve the public URL.');
+      const args = ['share', site, ...(subdomain ? [`--subdomain=${subdomain}`] : [])];
+      const result = runner.expose(args);
+      return textResult(result.stdout || result.stderr || 'Sharing started.');
     } catch (e) { return errorResult(e); }
   });
 

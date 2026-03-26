@@ -1,4 +1,5 @@
 import { spawnSync, spawn, SpawnSyncOptions } from 'child_process';
+import * as path from 'path';
 import type { HerdConfig } from './herd-detector';
 
 export interface CliResult {
@@ -11,10 +12,14 @@ export class CliRunner {
   constructor(private config: HerdConfig) {}
 
   run(exe: string, args: string[] = [], cwd?: string): CliResult {
+    // Prepend Herd's bin dir to PATH so any sub-scripts can resolve php/composer/etc.
+    const pathSep = process.platform === 'win32' ? ';' : ':';
+    const augmentedPath = `${this.config.binDir}${pathSep}${path.dirname(this.config.phpExe)}${pathSep}${process.env.PATH ?? ''}`;
+
     const result = spawnSync(exe, args, {
       cwd,
       encoding: 'utf8',
-      env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' },
+      env: { ...process.env, PATH: augmentedPath, NO_COLOR: '1', FORCE_COLOR: '0' },
       shell: true,
       timeout: 30000,
     } as SpawnSyncOptions);
@@ -26,20 +31,72 @@ export class CliRunner {
     };
   }
 
+  /**
+   * Run a herd.phar command directly via php.exe, bypassing herd.bat's
+   * find-usable-php.php dance which breaks when the user profile path
+   * contains non-ASCII (Cyrillic) characters.
+   */
   herd(args: string[], cwd?: string): CliResult {
-    return this.run(this.config.herdBat, ['--no-ansi', ...args], cwd);
+    return this.run(this.config.phpExe, [this.config.herdPhar, '--no-ansi', ...args], cwd);
   }
 
   php(args: string[], cwd?: string): CliResult {
-    return this.run(this.config.phpBat, args, cwd);
+    return this.run(this.config.phpExe, args, cwd);
   }
 
   composer(args: string[], cwd?: string): CliResult {
-    return this.run(this.config.composerBat, args, cwd);
+    return this.run(this.config.phpExe, [
+      path.join(this.config.binDir, 'composer.phar'),
+      ...args,
+    ], cwd);
   }
 
   laravel(args: string[], cwd?: string): CliResult {
-    return this.run(this.config.laravelBat, args, cwd);
+    return this.run(this.config.phpExe, [
+      path.join(this.config.binDir, 'laravel.phar'),
+      ...args,
+    ], cwd);
+  }
+
+  expose(args: string[], cwd?: string): CliResult {
+    return this.run(this.config.phpExe, [
+      path.join(this.config.binDir, 'expose.phar'),
+      ...args,
+    ], cwd);
+  }
+
+  phpWithDebug(script: string, cwd?: string): CliResult {
+    const pathSep = process.platform === 'win32' ? ';' : ':';
+    const augmentedPath = `${this.config.binDir}${pathSep}${path.dirname(this.config.phpExe)}${pathSep}${process.env.PATH ?? ''}`;
+    const result = spawnSync(this.config.phpExe, [script], {
+      cwd,
+      encoding: 'utf8',
+      env: { ...process.env, PATH: augmentedPath, NO_COLOR: '1', FORCE_COLOR: '0', XDEBUG_SESSION: '1' },
+      shell: true,
+      timeout: 30000,
+    } as SpawnSyncOptions);
+    return {
+      stdout: this.stripAnsi((result.stdout as string) ?? '').trim(),
+      stderr: this.stripAnsi((result.stderr as string) ?? '').trim(),
+      exitCode: result.status ?? 1,
+    };
+  }
+
+  phpWithCoverage(script: string, cwd?: string): CliResult {
+    const pathSep = process.platform === 'win32' ? ';' : ':';
+    const augmentedPath = `${this.config.binDir}${pathSep}${path.dirname(this.config.phpExe)}${pathSep}${process.env.PATH ?? ''}`;
+    const result = spawnSync(this.config.phpExe, [script], {
+      cwd,
+      encoding: 'utf8',
+      env: { ...process.env, PATH: augmentedPath, NO_COLOR: '1', FORCE_COLOR: '0', XDEBUG_MODE: 'coverage' },
+      shell: true,
+      timeout: 30000,
+    } as SpawnSyncOptions);
+    return {
+      stdout: this.stripAnsi((result.stdout as string) ?? '').trim(),
+      stderr: this.stripAnsi((result.stderr as string) ?? '').trim(),
+      exitCode: result.status ?? 1,
+    };
   }
 
   nvm(args: string[]): CliResult {

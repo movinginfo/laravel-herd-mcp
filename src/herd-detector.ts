@@ -5,6 +5,8 @@ import * as os from 'os';
 export interface HerdConfig {
   binDir: string;
   apiPort: number;
+  phpExe: string;   // absolute path to php.exe — bypasses herd.bat's find-usable-php.php
+  herdPhar: string; // absolute path to herd.phar
   herdBat: string;
   phpBat: string;
   composerBat: string;
@@ -14,11 +16,13 @@ export interface HerdConfig {
 
 export function detectHerd(overridePath?: string): HerdConfig {
   const binDir = resolveBinDir(overridePath);
-  const apiPort = resolveApiPort(binDir);
+  const { apiPort, phpExe } = resolveConfig(binDir);
 
   return {
     binDir,
     apiPort,
+    phpExe,
+    herdPhar:    path.join(binDir, 'herd.phar'),
     herdBat:     path.join(binDir, 'herd.bat'),
     phpBat:      path.join(binDir, 'php.bat'),
     composerBat: path.join(binDir, 'composer.bat'),
@@ -46,15 +50,40 @@ function resolveBinDir(override?: string): string {
   );
 }
 
-function resolveApiPort(binDir: string): number {
+function resolveConfig(binDir: string): { apiPort: number; phpExe: string } {
   // binDir is e.g. C:\Users\<user>\.config\herd\bin
   // config.json is at  C:\Users\<user>\.config\herd\config\config.json
   const configPath = path.join(path.dirname(binDir), 'config', 'config.json');
+  let apiPort = 2304;
+  let activeVersion = '';
+
   try {
     const raw = fs.readFileSync(configPath, 'utf8');
-    const config = JSON.parse(raw);
-    return typeof config.apiPort === 'number' ? config.apiPort : 2304;
+    const cfg = JSON.parse(raw);
+    if (typeof cfg.apiPort === 'number') apiPort = cfg.apiPort;
+    if (typeof cfg.activeVersion === 'string') activeVersion = cfg.activeVersion;
   } catch {
-    return 2304;
+    // defaults
   }
+
+  const phpExe = resolvePhpExe(binDir, activeVersion);
+  return { apiPort, phpExe };
+}
+
+function resolvePhpExe(binDir: string, activeVersion: string): string {
+  // Try the version from config.json first (e.g. "8.4" → "php84")
+  if (activeVersion) {
+    const key = activeVersion.replace('.', '');
+    const candidate = path.join(binDir, `php${key}`, 'php.exe');
+    if (fs.existsSync(candidate)) return candidate;
+  }
+
+  // Scan in preferred order
+  for (const ver of ['85', '84', '83', '82', '81', '80']) {
+    const candidate = path.join(binDir, `php${ver}`, 'php.exe');
+    if (fs.existsSync(candidate)) return candidate;
+  }
+
+  // Last resort: the php.bat wrapper (will work but slower)
+  return path.join(binDir, 'php.bat');
 }
