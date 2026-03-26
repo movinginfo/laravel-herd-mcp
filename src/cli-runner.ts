@@ -11,13 +11,14 @@ export interface CliResult {
 export class CliRunner {
   constructor(private config: HerdConfig) {}
 
-  run(exe: string, args: string[] = [], cwd?: string): CliResult {
+  run(exe: string, args: string[] = [], cwd?: string, stdin?: string): CliResult {
     // Prepend Herd's bin dir to PATH so any sub-scripts can resolve php/composer/etc.
     const pathSep = process.platform === 'win32' ? ';' : ':';
     const augmentedPath = `${this.config.binDir}${pathSep}${path.dirname(this.config.phpExe)}${pathSep}${process.env.PATH ?? ''}`;
 
     const result = spawnSync(exe, args, {
       cwd,
+      input: stdin,
       encoding: 'utf8',
       env: { ...process.env, PATH: augmentedPath, NO_COLOR: '1', FORCE_COLOR: '0' },
       shell: true,
@@ -40,8 +41,8 @@ export class CliRunner {
     return this.run(this.config.phpExe, [this.config.herdPhar, '--no-ansi', ...args], cwd);
   }
 
-  php(args: string[], cwd?: string): CliResult {
-    return this.run(this.config.phpExe, args, cwd);
+  php(args: string[], cwd?: string, stdin?: string): CliResult {
+    return this.run(this.config.phpExe, args, cwd, stdin);
   }
 
   composer(args: string[], cwd?: string): CliResult {

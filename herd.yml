@@ -1,0 +1,7 @@
+name: 'Laravel Herd MCP Plugin for Claude Code'
+php: '8.4'
+secured: false
+aliases: {  }
+services: {  }
+integrations:
+    forge: {  }

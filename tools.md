@@ -1,6 +1,6 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **179 tools** across 17 categories. All tools are available in the single `laravel-herd` MCP server.
+> **180 tools** across 17 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
 
@@ -108,6 +108,7 @@
 | `db_wipe` | `artisan db:wipe` — drop all tables, views and types |
 | `db_seed` | `artisan db:seed` with `--class` and `--database` |
 | `db_monitor` | `artisan db:monitor` — connection count alerts |
+| `db_cli` | Run SQL via `php artisan db` — uses Laravel's connection config, supports named connections |
 
 ---
 
@@ -396,7 +397,7 @@
 | PHP | 9 | Versions, isolation, ini |
 | Node / NVM | 3 | Install, list, switch |
 | Services | 8 | ⚠️ Herd Pro required |
-| Database (artisan) | 7 | .env info, GUI client, artisan db:* |
+| Database (artisan) | 8 | .env info, GUI client, artisan db:*, db CLI |
 | Cache | 14 | Application, config, view, route, event |
 | Queue & Schedule | 19 | Failed jobs, active queue, batches, schedule, Horizon |
 | Dumps & Debugging | 16 | Herd interceptor, watchers, Xdebug, Ray, Telescope |
@@ -407,4 +408,4 @@
 | Direct Database Client | 7 | Native SQL for MySQL/MariaDB/PostgreSQL/SQLite |
 | Laravel Forge CLI | 25 | Remote server management via forge CLI |
 | Setup & Integration | 3 | Claude Desktop/Code/Herd config |
-| **Total** | **179** | |
+| **Total** | **180** | |

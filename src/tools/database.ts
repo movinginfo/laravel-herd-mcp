@@ -168,6 +168,27 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
 
   // ── Herd Manifest (init) ───────────────────────────────────────────────────
 
+  // ── Database CLI (php artisan db) ─────────────────────────────────────────
+
+  server.tool('db_cli',
+    'Run SQL via the Laravel database CLI (php artisan db). Uses Laravel\'s own connection config — supports named connections, complex multi-DB setups, no credentials needed.',
+    {
+      sql:        z.string().describe('SQL statement(s) to execute — piped to php artisan db as stdin'),
+      connection: z.string().optional().describe('Named connection from config/database.php e.g. "mysql", "pgsql", "sqlite", "tenant" (uses default if omitted)'),
+      cwd:        z.string().describe('Laravel project root directory'),
+    },
+    async ({ sql, connection, cwd }) => {
+      try {
+        const args = ['artisan', 'db'];
+        if (connection) args.push(connection);
+        // Pipe SQL via stdin — artisan db reads from stdin when not in a TTY
+        const result = runner.php(args, cwd, sql);
+        const out = result.stdout || result.stderr || 'No output.';
+        return textResult(out);
+      } catch (e) { return errorResult(e); }
+    }
+  );
+
   server.tool('herd_init',
     'Start the services defined in the Herd manifest file (herd.yml) and apply its configuration',
     {

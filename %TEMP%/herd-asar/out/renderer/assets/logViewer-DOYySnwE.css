@@ -1,0 +1,22 @@
+
+.gutter {
+    background-color: #eee;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    position: relative;
+    z-index: 20;
+}
+.gutter.gutter-vertical {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+    cursor: row-resize;
+}
+.split {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+@media (prefers-color-scheme: dark) {
+.gutter {
+        --tw-bg-opacity: 1;
+        background-color: rgb(31 41 55 / var(--tw-bg-opacity));
+}
+}

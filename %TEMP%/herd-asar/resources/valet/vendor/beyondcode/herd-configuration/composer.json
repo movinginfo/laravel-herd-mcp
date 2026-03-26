@@ -1,0 +1,31 @@
+{
+    "name": "beyondcode/herd-configuration",
+    "description": "Configuration helper for Laravel Herd",
+    "keywords": [],
+    "homepage": "https://github.com/beyondcode/herd-configuration",
+    "license": "proprietary",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Diana Scharf",
+            "email": "diana@beyondco.de",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "BeyondCode\\HerdConfiguration\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BeyondCode\\HerdConfiguration\\Tests\\": "tests"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0|^9.3|^10.5"
+    }
+}

@@ -1,0 +1,6 @@
+{
+    "apiPort": 2304,
+    "dumps": false,
+    "mails": true,
+    "smtpPort": 2525
+}
