@@ -1,12 +1,12 @@
 # laravel-herd-mcp
 
-> **179 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
+> **194 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
 
 [![npm version](https://img.shields.io/npm/v/laravel-herd-mcp.svg)](https://www.npmjs.com/package/laravel-herd-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Laravel Herd](https://img.shields.io/badge/Laravel%20Herd-1.27%2B-red.svg)](https://herd.laravel.com)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blue.svg)](https://modelcontextprotocol.io)
-[![Tools](https://img.shields.io/badge/tools-179-brightgreen.svg)](tools.md)
+[![Tools](https://img.shields.io/badge/tools-194-brightgreen.svg)](tools.md)
 
 ---
 
@@ -29,7 +29,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **179 MCP tools** across 17 categories — [see full list →](tools.md)
+- **194 MCP tools** across 18 categories — [see full list →](tools.md)
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other MCP clients
 - **Auto-detects** your Herd installation, no manual path configuration needed
 - **Herd Free + Pro** — all Pro-only features degrade gracefully with clear messages
@@ -150,7 +150,7 @@ Connect your MCP client to `http://localhost:3333/sse`.
 
 ## Available Tools
 
-> **179 tools** in a single `laravel-herd` MCP server.
+> **194 tools** in a single `laravel-herd` MCP server.
 > 📄 **[Full tool reference → tools.md](tools.md)**
 
 | Category | Tools | Description |
@@ -166,7 +166,8 @@ Connect your MCP client to `http://localhost:3333/sse`.
 | **Direct Database Client** | 7 | Native SQL queries for MySQL, MariaDB, PostgreSQL, SQLite — local or remote |
 | **Cache** | 14 | App cache, config, view, route, event cache |
 | **Queue & Schedule** | 19 | Failed jobs, active queue, batches, schedule, Horizon |
-| **Dumps & Debugging** | 16 | Herd interceptor, watchers, Xdebug, Ray, Telescope |
+| **Dumps & Debugging** | 12 | Herd interceptor, watchers, Xdebug, Ray, Clockwork |
+| **Laravel Telescope** | 19 | Install, enable/disable, watchers, all 18 entry-type browsers *(laravel/telescope)* |
 | **Artisan** | 10 | Generic + `make:*`, migrate, routes, optimize, seed |
 | **Composer** | 12 | require, remove, install, update, search, scripts |
 | **Laravel Boost** | 5 | AI coding guidelines *(laravel/boost)* |
@@ -223,6 +224,9 @@ Claude ──► laravel-herd-mcp ──► Herd HTTP API (127.0.0.1:9001)   —
                              └──► php artisan                     — migrate, queue, cache…
                              └──► composer                        — require, install, update…
                              └──► Herd config.json                — dumps, watchers, settings
+                             └──► Native DB drivers               — mysql2, pg, better-sqlite3
+                             └──► storage/debugbar/*.json         — Debugbar request profiling
+                             └──► telescope_entries DB table      — Telescope watcher data
 ```
 
 > **Non-ASCII path fix:** `herd.bat` calls bare `php` which breaks when the Windows user profile path contains non-ASCII characters (e.g. Cyrillic). This package bypasses `herd.bat` entirely and calls `php.exe herd.phar` directly, resolving the PHP executable from Herd's own `config.json`.

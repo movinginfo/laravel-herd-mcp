@@ -1,6 +1,6 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **180 tools** across 17 categories. All tools are available in the single `laravel-herd` MCP server.
+> **194 tools** across 18 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
 
@@ -214,6 +214,40 @@
 | `telescope_status` | — | Show Telescope recording status |
 | `telescope_clear` | — | Clear all Telescope entries |
 | `telescope_prune` | — | Delete entries older than N hours |
+
+---
+
+## Laravel Telescope — Full Watcher Access 📦 `laravel/telescope`
+
+> Read every watcher type directly from the `telescope_entries` database table.
+> Connect via `.env` auto-detect or explicit params. All entry tools support a `limit` parameter.
+
+### Setup
+| Tool | Description |
+|------|-------------|
+| `telescope_install` | Install + migrate + set `TELESCOPE_ENABLED=true` |
+| `telescope_enable` | Set `TELESCOPE_ENABLED=true` in `.env` |
+| `telescope_disable` | Set `TELESCOPE_ENABLED=false` in `.env` |
+| `telescope_status` | Installed? Enabled? Entry counts per type, watcher state |
+| `telescope_watchers` | Show or toggle individual watchers in `.env` |
+| `telescope_clear` | `php artisan telescope:clear` — wipe all entries |
+| `telescope_prune` | `php artisan telescope:prune --hours=N` |
+
+### Entry Browsers
+| Tool | Watcher | Key fields shown |
+|------|---------|-----------------|
+| `telescope_requests` | HTTP Requests | method, URI, status, duration, memory — `status` + `slow_only` filters |
+| `telescope_queries` | Database | SQL, bindings, duration — `slow_only` + `min_ms` filters |
+| `telescope_exceptions` | Exceptions | class, message, file, line |
+| `telescope_logs` | Logs | level, message — `level` filter |
+| `telescope_commands` | Artisan | command, exit code |
+| `telescope_jobs` | Queue Jobs | name, status, queue — `status` filter |
+| `telescope_models` | Eloquent | model, key, action — `model` filter |
+| `telescope_events` | Events | event name, listener count |
+| `telescope_mail` | Mail | subject, to, mailable class |
+| `telescope_schedule` | Scheduled Tasks | command, exit code |
+| `telescope_cache` | Cache | operation type, key — `type` filter (hit/miss/set/forget) |
+| `telescope_entry` | Any | Full content + tags for one entry by UUID |
 
 ---
 
