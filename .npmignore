@@ -1,0 +1,22 @@
+# Development
+src/
+tests/
+docs/
+patch-claude/
+%TEMP%/
+.claude/
+*.bak
+
+# Config
+tsconfig.json
+vitest.config.ts
+
+# Git
+.gitignore
+
+# Keep in package:
+# dist/        ← compiled output
+# .claude-plugin/  ← plugin manifest
+# .mcp.json    ← MCP server definition
+# README.md
+# package.json
