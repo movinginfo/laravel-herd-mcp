@@ -1,43 +1,83 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import type { HerdHttpClient } from '../http-client';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
 
-export function registerServicesTools(server: McpServer, client: HerdHttpClient, runner: CliRunner): void {
-  server.tool('list_available_service_types', 'List available Herd service types (MySQL, Redis, etc.) and installed instances', {}, async () => {
+export function registerServicesTools(server: McpServer, runner: CliRunner): void {
+
+  server.tool('services_list', 'List all installed Herd services (MySQL, Redis, etc.) — requires Herd Pro', {}, async () => {
     try {
-      const result = runner.herd(['services:available']);
-      return textResult(result.stdout || 'No services available.');
+      const result = runner.herd(['services:list']);
+      return textResult(result.stdout || result.stderr || 'No services installed.');
     } catch (e) { return errorResult(e); }
   });
 
-  server.tool('get_service_versions', 'List available versions for a Herd service type', {
-    type: z.string().describe('Service type e.g. "mysql", "redis", "postgresql"'),
+  server.tool('services_available', 'List all available Herd service types that can be created — requires Herd Pro', {}, async () => {
+    try {
+      const result = runner.herd(['services:available']);
+      return textResult(result.stdout || result.stderr || 'No service types available.');
+    } catch (e) { return errorResult(e); }
+  });
+
+  server.tool('services_versions', 'List available versions for a service type (e.g. mysql, redis, postgresql) — requires Herd Pro', {
+    type: z.string().describe('Service type e.g. "mysql", "redis", "postgresql", "minio"'),
   }, async ({ type }) => {
     try {
       const result = runner.herd(['services:versions', type]);
-      return textResult(result.stdout || `No versions found for ${type}.`);
+      return textResult(result.stdout || result.stderr || `No versions found for ${type}.`);
     } catch (e) { return errorResult(e); }
   });
 
-  server.tool('clone_service', 'Clone a Herd service instance with its data', {
-    service: z.string().describe('Service name to clone'),
-  }, async ({ service }) => {
+  server.tool('services_create', 'Create a new Herd service instance — requires Herd Pro', {
+    type: z.string().describe('Service type e.g. "mysql", "redis", "postgresql", "minio"'),
+    name: z.string().optional().describe('Instance name e.g. "mysql84" (defaults to type)'),
+    port: z.number().optional().describe('Custom port number'),
+    version: z.string().optional().describe('Version e.g. "8.4", "7.4"'),
+  }, async ({ type, name, port, version }) => {
     try {
-      const result = runner.herd(['services:clone', service]);
-      runner.assertSuccess(result, 'clone_service');
-      return textResult(result.stdout || `Service "${service}" cloned.`);
+      const args = ['services:create', '--no-interaction'];
+      if (name) args.push('--name', name);
+      if (port) args.push('--port', String(port));
+      if (version) args.push('--version', version);
+      args.push(type);
+      const result = runner.herd(args);
+      return textResult(result.stdout || result.stderr || `Service "${name ?? type}" created.`);
     } catch (e) { return errorResult(e); }
   });
 
-  server.tool('delete_service', 'Delete a Herd service instance and its data', {
-    service: z.string().describe('Service name to delete'),
-  }, async ({ service }) => {
+  server.tool('services_start', 'Start an installed Herd service — requires Herd Pro', {
+    name: z.string().describe('Service name to start e.g. "mysql84", "redis"'),
+  }, async ({ name }) => {
     try {
-      const result = runner.herd(['services:delete', service]);
-      runner.assertSuccess(result, 'delete_service');
-      return textResult(result.stdout || `Service "${service}" deleted.`);
+      const result = runner.herd(['services:start', name]);
+      return textResult(result.stdout || result.stderr || `Service "${name}" started.`);
+    } catch (e) { return errorResult(e); }
+  });
+
+  server.tool('services_stop', 'Stop a running Herd service — requires Herd Pro', {
+    name: z.string().describe('Service name to stop e.g. "mysql84", "redis"'),
+  }, async ({ name }) => {
+    try {
+      const result = runner.herd(['services:stop', name]);
+      return textResult(result.stdout || result.stderr || `Service "${name}" stopped.`);
+    } catch (e) { return errorResult(e); }
+  });
+
+  server.tool('services_clone', 'Clone an existing Herd service instance with its data — requires Herd Pro', {
+    name: z.string().describe('Service instance name to clone'),
+  }, async ({ name }) => {
+    try {
+      const result = runner.herd(['services:clone', name]);
+      return textResult(result.stdout || result.stderr || `Service "${name}" cloned.`);
+    } catch (e) { return errorResult(e); }
+  });
+
+  server.tool('services_delete', 'Delete a Herd service instance and ALL its data — requires Herd Pro', {
+    name: z.string().describe('Service instance name to delete'),
+  }, async ({ name }) => {
+    try {
+      const result = runner.herd(['services:delete', '--no-interaction', name]);
+      return textResult(result.stdout || result.stderr || `Service "${name}" deleted.`);
     } catch (e) { return errorResult(e); }
   });
 }
