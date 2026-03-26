@@ -18,6 +18,7 @@ import { registerSharingTools } from './tools/sharing.js';
 import { registerLogsTools } from './tools/logs.js';
 import { registerDebugTools } from './tools/debug.js';
 import { registerDevtoolsTools } from './tools/devtools.js';
+import { registerSetupTools } from './tools/setup.js';
 
 export interface ServerOptions {
   herdPath?: string;
@@ -48,6 +49,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
   registerLogsTools(server, runner);
   registerDebugTools(server, runner);
   registerDevtoolsTools(server, runner);
+  registerSetupTools(server, herdConfig, runner);
 
   return server;
 }
