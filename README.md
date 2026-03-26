@@ -26,7 +26,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **37 MCP tools** covering every Herd feature
+- **42 MCP tools** covering every Herd feature
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other clients
 - **Auto-detects** your Herd installation, no manual path config needed
 - **Herd Free + Pro** — Pro features degrade gracefully on Free
@@ -112,127 +112,122 @@ Connect your MCP client to `http://localhost:3333/sse`.
 
 ## Available Tools
 
-### Sites & Directory Management
+> All 42 tools are provided by a single **`laravel-herd`** MCP server.
+
+### Sites
 
 | Tool | Description |
 |------|-------------|
-| `list_all_sites` | List all sites with URL, PHP version, SSL status, and path |
-| `get_site_info` | Get detailed information about a specific site |
-| `park_directory` | Register a directory so all subdirectories become `.test` sites |
-| `unpark_directory` | Remove a directory from Herd's parked paths |
-| `list_parked_dirs` | List registered parent park directories |
-| `list_parked_sites` | List all sites resolving from parked directories |
-| `link_site` | Register a single directory as a named site |
-| `unlink_site` | Remove a named site link |
+| `list_all_sites` | List all sites with URL, PHP version, SSL, path |
+| `list_parked_sites` | List sites from parked directories |
+| `list_parked_paths` | List registered park directories |
+| `get_site_info_artisan` | Run `artisan about` for a Laravel site |
+| `get_site_driver` | Show which Herd driver serves a directory |
+| `open_site_in_browser` | Open site in default browser |
+
+### Links & Proxies
+
+| Tool | Description |
+|------|-------------|
+| `link_site` | Create a named link for a directory |
+| `unlink_site` | Remove a named link |
 | `list_links` | List all linked sites |
-| `open_site` | Open a site in the default browser |
-| `which_driver` | Show which Herd driver is serving the current directory |
+| `create_proxy` | Proxy a hostname to a local port/URL |
+| `remove_proxy` | Remove a proxy |
+| `list_proxies` | List all proxies |
 
-### PHP Version Management
+### Parks
 
 | Tool | Description |
 |------|-------------|
-| `list_php_versions` | List all PHP versions with install and active status |
-| `install_php_version` | Install or update a PHP version (e.g., `8.3`, `8.4`) |
-| `use_php_globally` | Set the global default PHP version |
-| `isolate_site_php` | Pin a site to a specific PHP version |
-| `unisolate_site_php` | Remove PHP isolation from a site |
-| `list_isolated_sites` | List all sites using an isolated PHP version |
-| `which_php` | Show the PHP binary path used for a site |
+| `park_directory` | Register a directory so subdirs become `.test` sites |
+| `unpark_directory` | Unregister a parked directory |
 
 ### SSL / HTTPS
 
 | Tool | Description |
 |------|-------------|
-| `secure_site` | Enable HTTPS with a trusted TLS certificate |
-| `unsecure_site` | Remove HTTPS from a site |
-| `list_secured_sites` | List all secured sites with certificate expiry |
+| `secure_site` | Enable HTTPS (generate trusted TLS cert) |
+| `unsecure_site` | Disable HTTPS |
+| `list_secured_sites` | List secured sites with cert expiry dates |
 
-### Proxies
-
-| Tool | Description |
-|------|-------------|
-| `create_proxy` | Create an Nginx proxy to a local port (Docker, Reverb, Mailhog, etc.) |
-| `remove_proxy` | Remove a proxy configuration |
-| `list_proxies` | List all configured proxies |
-
-### Services — Herd Pro
-
-> Requires [Herd Pro](https://herd.laravel.com/checkout). Returns a clear error on Herd Free.
+### PHP
 
 | Tool | Description |
 |------|-------------|
-| `list_available_services` | List service types that can be installed (MySQL, Redis, etc.) |
-| `list_installed_services` | List installed service instances with running status and connection env vars |
-| `install_service` | Install a service: `mysql`, `redis`, `postgresql`, `mariadb`, `meilisearch`, `minio`, `reverb`, `rustfs`, `mongodb` |
-| `start_service` | Start a service instance |
-| `stop_service` | Stop a service instance |
-| `delete_service` | Delete a service and all its data |
+| `list_php_versions` | List all PHP versions with install/active status |
+| `install_php_version` | Install a PHP version (e.g. `"8.3"`) |
+| `update_php_version` | Update a PHP version to latest patch |
+| `use_php_globally` | Set global default PHP version |
+| `which_php` | Show PHP binary path for a site |
+| `edit_php_ini` | Open `php.ini` for a version in IDE |
 
-### Debug Sessions — Herd Pro
-
-> Captures queries, logs, dumps, jobs, HTTP requests, and performance data.
+### PHP Isolation
 
 | Tool | Description |
 |------|-------------|
-| `start_debug_session` | Begin capturing debug data for the current site |
-| `stop_debug_session` | Stop capture and return all collected data |
+| `isolate_site_php` | Pin a site to a specific PHP version |
+| `unisolate_site_php` | Remove isolation, revert to global PHP |
+| `list_isolated_sites` | List all isolated sites |
 
-### Core Herd Services
+### Node / NVM
 
 | Tool | Description |
 |------|-------------|
-| `start_herd` | Start all Herd services (nginx, PHP, etc.) |
+| `list_node_versions` | List installed Node versions |
+| `install_node_version` | Install a Node version |
+| `use_node_version` | Switch active Node version |
+
+### Services (MySQL, Redis, etc.)
+
+| Tool | Description |
+|------|-------------|
+| `list_available_service_types` | List available service types |
+| `get_service_versions` | Get versions for a service type |
+| `clone_service` | Install/clone a service |
+| `delete_service` | Remove a service |
+
+### Core / Control
+
+| Tool | Description |
+|------|-------------|
+| `start_herd` | Start all Herd services |
 | `stop_herd` | Stop all Herd services |
 | `restart_herd` | Restart all Herd services |
-| `get_tld` | Get the current TLD (default: `test`) |
-| `set_tld` | Change the TLD for all sites |
-| `get_loopback` | Get the loopback address |
-| `set_loopback` | Set a custom loopback address |
-| `set_directory_listing` | Enable or disable directory listing for a site |
+| `get_loopback_address` | Get current loopback IP |
+| `set_loopback_address` | Change loopback IP |
+| `open_site_in_ide` | Open site directory in configured IDE |
 
 ### Sharing
 
 | Tool | Description |
 |------|-------------|
-| `share_site` | Share the current site publicly via an Expose tunnel (starts background process, returns tunnel URL) |
-| `get_share_url` | Get the URL of a running share tunnel |
+| `share_site` | Share a site via Expose tunnel |
+| `get_share_url` | Get current tunnel URL |
 
-### Logs
-
-| Tool | Description |
-|------|-------------|
-| `tail_log` | Tail a log file (nginx, php, app logs) |
-
-### Node.js / NVM
+### Logs & Debug
 
 | Tool | Description |
 |------|-------------|
-| `nvm_list` | List installed Node.js versions |
-| `nvm_install` | Install a Node.js version |
-| `nvm_use` | Switch to a Node.js version |
+| `tail_log` | Read Herd log output (nginx, php, herd…) |
+| `run_php_with_debug` | Run PHP script with Xdebug |
+| `run_php_with_coverage` | Run PHP script with coverage mode |
+| `run_tinker` | Launch Laravel Tinker REPL |
 
-### Forge Integration
-
-> Requires [Laravel Forge CLI](https://forge.laravel.com/docs/cli.html) installed, `forge login` completed, and the current project linked to Forge (via `herd.yml`). Returns a clear error if any precondition is missing.
-
-| Tool | Description |
-|------|-------------|
-| `get_forge_deployment_info` | Get the latest deployment logs from Forge |
-| `get_forge_env_vars` | Pull environment variables from the remote Forge server |
-
-### Additional Tools
+### Dev Tools
 
 | Tool | Description |
 |------|-------------|
-| `get_site_db_info` | Get database connection details for a site |
-| `init_herd_manifest` | Initialise a `herd.yml` manifest file |
-| `create_fresh_manifest` | Create a blank `herd.yml` manifest |
-| `update_php_version` | Update an installed PHP version to its latest patch |
-| `list_service_versions` | List available versions for a service type |
-| `run_php_command` | Run a PHP command using the site-isolated PHP version |
-| `run_composer` | Run a Composer command using the correct PHP version |
-| `create_laravel_project` | Create a new Laravel project via `laravel new` |
+| `run_composer` | Run Composer command via Herd's PHP |
+| `create_laravel_project` | Create new Laravel project |
+
+### Setup
+
+| Tool | Description |
+|------|-------------|
+| `setup_integrations` | Auto-configure Claude Desktop + Claude Code + Herd |
+
+**Total: 42 tools**
 
 ---
 
