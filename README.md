@@ -26,7 +26,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **60 MCP tools** covering every Herd feature
+- **65 MCP tools** covering every Herd feature + Laravel Boost integration
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other clients
 - **Auto-detects** your Herd installation, no manual path config needed
 - **Herd Free + Pro** — Pro features degrade gracefully on Free
@@ -256,7 +256,19 @@ Connect your MCP client to `http://localhost:3333/sse`.
 |------|-------------|
 | `setup_integrations` | Auto-configure Claude Desktop + Claude Code + Herd |
 
-**Total: 60 tools**
+### Laravel Boost (laravel/boost)
+
+[Laravel Boost](https://github.com/laravel/boost) is Laravel's official MCP server + AI coding guidelines package.
+
+| Tool | Description |
+|------|-------------|
+| `boost_install` | `composer require laravel/boost --dev` + `php artisan boost:install` in one step |
+| `boost_register_mcp` | Register the project's `boost:mcp` server in `~/.claude/settings.json` |
+| `boost_list_guidelines` | List AI guidelines in `.ai/guidelines/` |
+| `boost_add_guideline` | Add or overwrite a custom guideline file |
+| `boost_mcp_config` | Show the JSON snippet to register Boost MCP in any editor |
+
+**Total: 65 tools**
 
 ---
 
