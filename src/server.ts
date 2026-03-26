@@ -25,6 +25,7 @@ import { registerCacheTools } from './tools/cache.js';
 import { registerQueueTools } from './tools/queue.js';
 import { registerDumpsTools } from './tools/dumps.js';
 import { registerBoostTools } from './tools/boost.js';
+import { registerDbClientTools } from './tools/db-client.js';
 import { registerForgeTools } from './tools/forge.js';
 import { registerSetupTools, registerStatusTools, registerPatchHerdUiTool } from './tools/setup.js';
 
@@ -39,7 +40,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
 
   const server = new McpServer({
     name: 'laravel-herd-mcp',
-    version: '0.1.15',
+    version: '0.1.16',
   });
 
   // Register all tool groups
@@ -64,6 +65,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
   registerQueueTools(server, runner);
   registerDumpsTools(server, herdConfig, runner);
   registerBoostTools(server, runner);
+  registerDbClientTools(server);
   registerForgeTools(server, runner);
   registerSetupTools(server, herdConfig, runner);
   registerStatusTools(server, herdConfig);

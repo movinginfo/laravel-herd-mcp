@@ -1,6 +1,6 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **163 tools** across 15 categories. All tools are available in the single `laravel-herd` MCP server.
+> **170 tools** across 16 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
 
@@ -266,6 +266,27 @@
 
 ---
 
+## Direct Database Client
+
+> Native database access for **MySQL, MariaDB, PostgreSQL, and SQLite** — both local Herd databases and remote servers.
+>
+> Supply `cwd` to auto-read connection details from a Laravel `.env`, or provide explicit `driver`/`host`/`port`/`database`/`username`/`password`.
+>
+> **Dependencies bundled:** `mysql2` (MySQL/MariaDB), `pg` (PostgreSQL).
+> **SQLite:** requires `better-sqlite3` (optional — install with `npm install -g better-sqlite3`).
+
+| Tool | Description |
+|------|-------------|
+| `sql_connect_test` | Test a connection and return server version, current database, and user |
+| `sql_query` | Execute a SELECT query — returns JSON rows, auto-adds LIMIT if absent |
+| `sql_execute` | Execute INSERT / UPDATE / DELETE / CREATE TABLE / ALTER — returns affected rows. DROP/TRUNCATE require `confirm_destructive=true` |
+| `sql_list_tables` | List all tables and views with row estimates and size |
+| `sql_describe_table` | Full table schema: columns, types, nullability, defaults, indexes, foreign keys |
+| `sql_list_databases` | List all databases with size (MySQL/PostgreSQL) or file info (SQLite) |
+| `sql_export` | Export a SELECT result to a local CSV or JSON file |
+
+---
+
 ## Laravel Forge CLI
 
 > Requires `laravel/forge-cli` installed globally (`forge_install` or `composer global require laravel/forge-cli`).
@@ -355,13 +376,14 @@
 | PHP | 9 | Versions, isolation, ini |
 | Node / NVM | 3 | Install, list, switch |
 | Services | 8 | ⚠️ Herd Pro required |
-| Database | 7 | .env info, GUI client, artisan db:* |
+| Database (artisan) | 7 | .env info, GUI client, artisan db:* |
 | Cache | 14 | Application, config, view, route, event |
 | Queue & Schedule | 19 | Failed jobs, active queue, batches, schedule, Horizon |
 | Dumps & Debugging | 16 | Herd interceptor, watchers, Xdebug, Ray, Telescope |
 | Artisan | 10 | Generic + common workflows |
 | Composer | 12 | Full dependency management |
 | Laravel Boost | 5 | 📦 AI coding guidelines |
+| Direct Database Client | 7 | Native SQL for MySQL/MariaDB/PostgreSQL/SQLite |
 | Laravel Forge CLI | 25 | Remote server management via forge CLI |
 | Setup & Integration | 3 | Claude Desktop/Code/Herd config |
-| **Total** | **163** | |
+| **Total** | **170** | |
