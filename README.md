@@ -131,7 +131,12 @@ Open VS Code Settings (`Ctrl+,`) → search `chat.agent.enabled` → tick **Enab
 
 **Step 3 — Add the MCP server**
 
-Open the Command Palette (`Ctrl+Shift+P`) → type **Open User Settings (JSON)** → Enter.
+Open your user `settings.json` using **one** of these methods:
+
+- Command Palette (`Ctrl+Shift+P`) → type **Preferences: Open User Settings (JSON)** → Enter
+- Or open the file directly:
+  - Windows: `%APPDATA%\Code\User\settings.json`
+  - macOS: `~/Library/Application Support/Code/User/settings.json`
 
 Add the `mcp` block (merge with any existing content — do not replace the whole file):
 
