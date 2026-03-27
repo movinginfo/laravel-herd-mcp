@@ -1,10 +1,28 @@
 {
+  "_comment": "Paste the mcp block below into your VS Code User settings.json.",
+  "_note": "Requires VS Code 1.99+ and GitHub Copilot extension (agent mode).",
+  "_tabs_note": "Details + Manifest tabs appear after the server first connects. Trigger by opening Copilot Chat → Agent mode → use any laravel-herd tool.",
+
   "mcp": {
     "servers": {
       "laravel-herd": {
         "type": "stdio",
         "command": "npx",
         "args": ["-y", "laravel-herd-mcp"]
+      }
+    }
+  },
+
+  "_sse_alternative": {
+    "_comment": "Use this instead if you want Details + Manifest tabs visible immediately without first use.",
+    "_step1": "Start the HTTP server first: npx laravel-herd-mcp --http --port 3333",
+    "_step2": "Then use this config in settings.json:",
+    "mcp": {
+      "servers": {
+        "laravel-herd": {
+          "type": "sse",
+          "url": "http://localhost:3333/sse"
+        }
       }
     }
   }

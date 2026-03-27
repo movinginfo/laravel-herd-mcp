@@ -139,6 +139,48 @@ Merge into the existing JSON (do not overwrite the whole file):
 
 `Ctrl+Alt+I` → Copilot Chat → **Agent** tab → click the **Tools** icon (🔌) → confirm `laravel-herd` is listed.
 
+**Step 7 — Unlock Details + Manifest tabs**
+
+VS Code starts MCP servers **lazily** — it connects only when you first use a tool. Until then, the MCP Servers panel shows only the **Configuration** tab. After the first tool call, VS Code connects, reads the server metadata, and all three tabs appear:
+
+| Tab | Content | When it appears |
+|-----|---------|-----------------|
+| **Configuration** | Your `settings.json` snippet | Always |
+| **Details** | Server name, version, description, homepage | After first connection |
+| **Manifest** | All 218 tools with descriptions | After first connection |
+
+To trigger the connection immediately:
+
+1. Open Copilot Chat (`Ctrl+Alt+I`) → switch to **Agent** mode
+2. Type any request like `laravel-herd list sites` or click the 🔌 Tools icon
+3. Accept the permission prompt if shown
+4. Go back to the MCP Servers panel — **Details** and **Manifest** tabs are now populated
+
+**Alternative: SSE mode (all tabs visible without using a tool first)**
+
+Start the server as an HTTP/SSE service once (e.g. via a startup script or Task Scheduler):
+
+```bash
+npx laravel-herd-mcp --http --port 3333
+```
+
+Then use this config in `settings.json` instead:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "laravel-herd": {
+        "type": "sse",
+        "url": "http://localhost:3333/sse"
+      }
+    }
+  }
+}
+```
+
+VS Code connects to the SSE endpoint immediately on startup, so all three tabs show without any tool use first.
+
 Config snippet: [`configs/vscode.json`](configs/vscode.json)
 
 ---

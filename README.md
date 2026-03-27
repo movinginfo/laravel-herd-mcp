@@ -161,6 +161,39 @@ Requires **VS Code 1.99+** and the **GitHub Copilot** extension.
 
 **6 — Verify:** `Ctrl+Alt+I` → Copilot Chat → **Agent** tab → **Tools** icon (🔌) → `laravel-herd` should appear.
 
+**7 — MCP Servers panel tabs** *(Configuration / Details / Manifest)*
+
+VS Code starts MCP servers **lazily** — it only connects on the first tool call. Until then the panel shows only the **Configuration** tab.
+
+- **Configuration** — always visible (your settings.json snippet)
+- **Details** — appears after first connection: server name `Laravel Herd`, version, description, homepage
+- **Manifest** — appears after first connection: all 218 tools with names and descriptions
+
+To unlock Details + Manifest immediately: open Copilot Chat → Agent mode → use any `laravel-herd` tool (e.g. *"list herd sites"*) → accept the permission prompt → return to the MCP panel.
+
+**Alternative — SSE mode (all tabs visible immediately, no tool use required)**
+
+```bash
+# Step 1: start the server persistently (add to startup / Task Scheduler)
+npx laravel-herd-mcp --http --port 3333
+```
+
+```json
+// Step 2: use SSE transport in settings.json instead of stdio
+{
+  "mcp": {
+    "servers": {
+      "laravel-herd": {
+        "type": "sse",
+        "url": "http://localhost:3333/sse"
+      }
+    }
+  }
+}
+```
+
+VS Code connects to the SSE endpoint on startup — all three tabs are populated immediately.
+
 ### Cursor
 
 Create or edit `~/.cursor/mcp.json`:

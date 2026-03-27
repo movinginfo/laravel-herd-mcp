@@ -44,8 +44,13 @@ export function createServer(options: ServerOptions = {}): McpServer {
   const runner = new CliRunner(herdConfig);
 
   const server = new McpServer({
-    name: 'laravel-herd-mcp',
-    version: '0.1.24',
+    name:        'laravel-herd-mcp',
+    title:       'Laravel Herd',
+    version:     '0.1.25',
+    description: '218 MCP tools for full Laravel Herd control — sites, PHP, SSL, artisan, composer, ' +
+                 'Telescope, Pulse, Nightwatch, Debugbar, Forge CLI, direct DB queries and more. ' +
+                 'Works on Windows and macOS.',
+    websiteUrl:  'https://github.com/movinginfo/laravel-herd-mcp',
   });
 
   // Register all tool groups

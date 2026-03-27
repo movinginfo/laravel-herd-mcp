@@ -1,6 +1,6 @@
 {
   "name": "laravel-herd-mcp",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "description": "218 MCP tools for full Laravel Herd control — sites, PHP, SSL, Pulse, Telescope, Nightwatch, Forge CLI and more. Works on Windows and macOS.",
   "main": "dist/index.js",
   "bin": {
@@ -29,7 +29,15 @@
     "forge",
     "artisan"
   ],
-  "author": "",
+  "author": "laravel-herd-mcp contributors",
+  "homepage": "https://github.com/movinginfo/laravel-herd-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/movinginfo/laravel-herd-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/movinginfo/laravel-herd-mcp/issues"
+  },
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
