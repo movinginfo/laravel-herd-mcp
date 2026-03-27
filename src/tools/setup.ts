@@ -32,14 +32,21 @@ export function registerSetupTools(server: McpServer, herdConfig: HerdConfig, ru
           `Claude Code (${result.claudeCode.status}):`,
           `  ${result.claudeCode.path}`,
           '',
+          `VS Code (${result.vsCode.status}):`,
+          `  ${result.vsCode.path}`,
+          '',
           `Herd integrations (${result.herdIntegrations.status}):`,
           `  ${result.herdIntegrations.path}`,
           '',
-          'Two MCP servers registered:',
-          '  • laravel-herd-mcp — 42 CLI tools (this server)',
-          '  • laravel-herd-phar — 13 HTTP-API tools (Herd built-in)',
+          'Registered:',
+          '  • laravel-herd — 218 tools (this server)',
+          '  • laravel-herd-phar — Herd built-in HTTP-API tools',
           '',
-          'Restart Claude Desktop and reload Claude Code to activate.',
+          'Restart Claude Desktop / VS Code and reload Claude Code to activate.',
+          '',
+          'For Cursor: add to ~/.cursor/mcp.json',
+          'For PhpStorm: Settings > AI Assistant > MCP Servers',
+          'For Windsurf: add to ~/.codeium/windsurf/mcp_config.json',
         ];
 
         return textResult(lines.join('\n'));
@@ -212,18 +219,19 @@ function resolvePhpExePath(herdConfig: HerdConfig, runner: CliRunner): string {
     }
   } catch { /* fall through */ }
 
-  // Fall back: scan for php*/php.exe in bin dir
+  // Fall back: scan for php*/php(.exe) in bin dir
+  const phpBin = process.platform === 'win32' ? 'php.exe' : 'php';
   try {
     const entries = fs.readdirSync(herdConfig.binDir);
     const phpDirs = entries.filter(e => /^php\d/.test(e));
     for (const dir of phpDirs.reverse()) { // highest version first
-      const exePath = path.join(herdConfig.binDir, dir, 'php.exe');
+      const exePath = path.join(herdConfig.binDir, dir, phpBin);
       if (fs.existsSync(exePath)) {
         return exePath;
       }
     }
   } catch { /* fall through */ }
 
-  // Last resort: use php.bat path (will still work for running the phar)
+  // Last resort: use wrapper script
   return herdConfig.phpBat;
 }

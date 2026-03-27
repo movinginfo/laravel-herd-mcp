@@ -45,7 +45,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
 
   const server = new McpServer({
     name: 'laravel-herd-mcp',
-    version: '0.1.23',
+    version: '0.1.24',
   });
 
   // Register all tool groups

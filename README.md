@@ -30,7 +30,9 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 ## Features
 
 - **218 MCP tools** across 20 categories — [see full list →](tools.md)
-- **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other MCP clients
+- **Multi-IDE** — Claude Desktop, Claude Code, VS Code (Copilot/Continue), Cursor, Windsurf, PhpStorm, and any MCP-compatible client
+- **Cross-platform** — Windows and macOS both supported; Herd paths auto-detected on both
+- **Dual transport** — stdio for local clients, HTTP/SSE for remote or multi-client setups
 - **Auto-detects** your Herd installation, no manual path configuration needed
 - **Herd Free + Pro** — all Pro-only features degrade gracefully with clear messages
 - **Non-ASCII paths** — works correctly even if your Windows username contains Cyrillic or other non-ASCII characters
@@ -42,9 +44,11 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 | | |
 |--|--|
-| [Laravel Herd](https://herd.laravel.com) | v1.27+ for Windows |
+| [Laravel Herd](https://herd.laravel.com) | v1.27+ for Windows · v1.0+ for macOS |
 | Node.js | 18+ |
 | MCP client | [Claude Desktop](https://claude.ai/download) or any MCP-compatible client |
+
+> **macOS:** Fully supported. Laravel Herd stores its config at `~/.config/herd/` and `~/Library/Application Support/Herd/` — both paths are auto-detected.
 
 ---
 
@@ -78,7 +82,7 @@ node dist/index.js
 
 ### Claude Desktop
 
-Edit `%APPDATA%\Claude\claude_desktop_config.json`:
+Edit `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
 
 ```json
 {
@@ -111,6 +115,84 @@ Or add to `~/.claude/settings.json` manually:
   }
 }
 ```
+
+### VS Code
+
+Requires VS Code 1.99+ with [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (agent mode) or the [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) extension.
+
+**Auto-configure:** run `setup_integrations` from any MCP client — it writes to `settings.json` automatically.
+
+**Manual:** add to your VS Code user `settings.json`
+(`%APPDATA%\Code\User\settings.json` on Windows · `~/Library/Application Support/Code/User/settings.json` on macOS):
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "laravel-herd": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "laravel-herd-mcp"]
+      }
+    }
+  }
+}
+```
+
+Reload VS Code. The `laravel-herd` server will appear under **GitHub Copilot → Agent → Tools**.
+
+### Cursor
+
+Add to `~/.cursor/mcp.json` (create if it doesn't exist):
+
+```json
+{
+  "mcpServers": {
+    "laravel-herd": {
+      "command": "npx",
+      "args": ["-y", "laravel-herd-mcp"]
+    }
+  }
+}
+```
+
+Restart Cursor. Tools appear in **Cursor Settings → MCP**.
+
+### Windsurf (Codeium)
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "laravel-herd": {
+      "command": "npx",
+      "args": ["-y", "laravel-herd-mcp"]
+    }
+  }
+}
+```
+
+### PhpStorm / JetBrains IDEs
+
+1. Install the **JetBrains AI Assistant** plugin
+2. Go to **Settings → Tools → AI Assistant → Model Context Protocol (MCP)**
+3. Click **+** → **As Process**
+4. Command: `npx`, Arguments: `-y laravel-herd-mcp`
+5. Apply and restart the IDE
+
+### Other MCP clients (Antigravity, Zed, etc.)
+
+Any client that supports MCP stdio transport works. Use:
+
+```json
+{
+  "command": "npx",
+  "args": ["-y", "laravel-herd-mcp"]
+}
+```
+
+Check your client's documentation for the config file location and format.
 
 ### Custom Herd path
 

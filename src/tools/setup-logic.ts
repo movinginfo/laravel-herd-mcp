@@ -3,10 +3,13 @@ import * as path from 'path';
 import * as os from 'os';
 import type { HerdConfig } from '../herd-detector';
 
+type MergeStatus = 'created' | 'merged' | 'backed_up_and_overwritten' | 'skipped';
+
 export interface SetupResult {
-  claudeDesktop: { path: string; status: 'created' | 'merged' | 'backed_up_and_overwritten' };
-  claudeCode: { path: string; status: 'created' | 'merged' | 'backed_up_and_overwritten' };
-  herdIntegrations: { path: string; status: 'created' | 'merged' | 'backed_up_and_overwritten' };
+  claudeDesktop: { path: string; status: MergeStatus };
+  claudeCode: { path: string; status: MergeStatus };
+  vsCode: { path: string; status: MergeStatus };
+  herdIntegrations: { path: string; status: MergeStatus };
 }
 
 export function setupIntegrations(
@@ -47,7 +50,17 @@ export function setupIntegrations(
     return config;
   });
 
-  // Target 3: Herd integrations.json
+  // Target 3: VS Code user settings.json (GitHub Copilot agent / Continue MCP)
+  const vsCodePath = getVsCodeConfigPath();
+  const vsCodeStatus = mergeJsonFile(vsCodePath, (existing) => {
+    const config = existing ?? {};
+    config.mcp = config.mcp ?? {};
+    config.mcp.servers = config.mcp.servers ?? {};
+    config.mcp.servers['laravel-herd'] = { type: 'stdio', ...herdEntry };
+    return config;
+  });
+
+  // Target 4: Herd integrations.json
   const herdIntegrationsPath = path.join(
     path.dirname(herdConfig.binDir), 'config', 'integrations.json'
   );
@@ -80,11 +93,15 @@ export function setupIntegrations(
   return {
     claudeDesktop: { path: claudeDesktopPath, status: claudeDesktopStatus },
     claudeCode: { path: claudeCodePath, status: claudeCodeStatus },
+    vsCode: { path: vsCodePath, status: vsCodeStatus },
     herdIntegrations: { path: herdIntegrationsPath, status: herdStatus },
   };
 }
 
 function getClaudeDesktopConfigPath(): string {
+  if (process.platform === 'darwin') {
+    return path.join(os.homedir(), 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json');
+  }
   const appData = process.env.APPDATA ?? path.join(os.homedir(), 'AppData', 'Roaming');
   return path.join(appData, 'Claude', 'claude_desktop_config.json');
 }
@@ -93,7 +110,16 @@ function getClaudeCodeConfigPath(): string {
   return path.join(os.homedir(), '.claude', 'settings.json');
 }
 
-type MergeStatus = 'created' | 'merged' | 'backed_up_and_overwritten';
+function getVsCodeConfigPath(): string {
+  if (process.platform === 'darwin') {
+    return path.join(os.homedir(), 'Library', 'Application Support', 'Code', 'User', 'settings.json');
+  }
+  if (process.platform === 'linux') {
+    return path.join(os.homedir(), '.config', 'Code', 'User', 'settings.json');
+  }
+  const appData = process.env.APPDATA ?? path.join(os.homedir(), 'AppData', 'Roaming');
+  return path.join(appData, 'Code', 'User', 'settings.json');
+}
 
 function mergeJsonFile(
   filePath: string,
