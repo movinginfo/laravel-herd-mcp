@@ -218,9 +218,11 @@ const IDES = [
     icon: '🚀',
     format: 'mcpServers',
     configPath: isWin
-      ? '%USERPROFILE%\\.antigravity\\mcp.json'
-      : '~/.antigravity/mcp.json',
-    detectDir: isWin ? '%USERPROFILE%\\.antigravity' : '~/.antigravity',
+      ? '%USERPROFILE%\\.gemini\\antigravity\\mcp_config.json'
+      : '~/.gemini/antigravity/mcp_config.json',
+    detectDir: isWin
+      ? '%USERPROFILE%\\.gemini\\antigravity'
+      : '~/.gemini/antigravity',
     afterInstall: 'Restart Antigravity.',
   },
 

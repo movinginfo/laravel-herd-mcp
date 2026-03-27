@@ -256,11 +256,17 @@ args = ["-y", "laravel-herd-mcp"]
 
 ### Antigravity
 
-Create or edit `~/.antigravity/mcp.json`:
+Edit `%USERPROFILE%\.gemini\antigravity\mcp_config.json` (macOS: `~/.gemini/antigravity/mcp_config.json`).
+
+**Merge** `laravel-herd` into the existing `mcpServers` object — do not add a second `{...}` block:
 
 ```json
 {
   "mcpServers": {
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp",
+      "headers": { "CONTEXT7_API_KEY": "your-key" }
+    },
     "laravel-herd": {
       "command": "npx",
       "args": ["-y", "laravel-herd-mcp"]

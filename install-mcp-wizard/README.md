@@ -265,11 +265,28 @@ Config snippet: [`configs/codex.toml`](configs/codex.toml)
 
 ### Antigravity
 
-Create or edit `~/.antigravity/mcp.json`:
+Create or edit `~/.gemini/antigravity/mcp_config.json` (Windows: `%USERPROFILE%\.gemini\antigravity\mcp_config.json`):
 
 ```json
 {
   "mcpServers": {
+    "laravel-herd": {
+      "command": "npx",
+      "args": ["-y", "laravel-herd-mcp"]
+    }
+  }
+}
+```
+
+**Important:** if you already have other servers in the file (e.g. `context7`), merge the `laravel-herd` entry inside the **existing** `mcpServers` object — do not paste a second `{...}` block. One file, one `mcpServers` object, all servers inside it:
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp",
+      "headers": { "CONTEXT7_API_KEY": "your-key" }
+    },
     "laravel-herd": {
       "command": "npx",
       "args": ["-y", "laravel-herd-mcp"]
