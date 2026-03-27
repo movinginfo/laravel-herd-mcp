@@ -1,0 +1,7 @@
+# Append this block to ~/.codex/config.toml
+# OpenAI Codex CLI — MCP server config
+
+[[mcp_servers]]
+name = "laravel-herd"
+command = "npx"
+args = ["-y", "laravel-herd-mcp"]

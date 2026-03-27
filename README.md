@@ -80,6 +80,27 @@ node dist/index.js
 
 ## Setup
 
+### Auto-installer (all IDEs in one command)
+
+Detect and configure every supported IDE automatically:
+
+```bash
+node install-mcp-wizard/install.js
+```
+
+The wizard detects Claude Desktop, Claude Code, VS Code, Cursor, Windsurf, Zed, Codex CLI, Antigravity, and PhpStorm — backs up existing configs and merges the MCP entry.
+
+```
+# Options:
+node install-mcp-wizard/install.js --yes      # skip confirmation
+node install-mcp-wizard/install.js --list     # show detected IDEs only
+node install-mcp-wizard/install.js --dry-run  # preview changes, write nothing
+```
+
+📄 **[Full per-IDE instructions → install-mcp-wizard/README.md](install-mcp-wizard/README.md)**
+
+---
+
 ### Claude Desktop
 
 Edit `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
@@ -89,56 +110,38 @@ Edit `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/Appli
   "mcpServers": {
     "laravel-herd": {
       "command": "npx",
-      "args": ["laravel-herd-mcp"]
+      "args": ["-y", "laravel-herd-mcp"]
     }
   }
 }
 ```
 
-Restart Claude Desktop. You should see **laravel-herd** in the MCP tools list.
+Restart Claude Desktop.
 
 ### Claude Code
 
 ```bash
-claude mcp add laravel-herd -- npx laravel-herd-mcp
+claude mcp add laravel-herd -- npx -y laravel-herd-mcp
 ```
 
-Or add to `~/.claude/settings.json` manually:
-
-```json
-{
-  "mcpServers": {
-    "laravel-herd": {
-      "command": "npx",
-      "args": ["laravel-herd-mcp"]
-    }
-  }
-}
-```
+Or edit `~/.claude/settings.json` directly with the same `mcpServers` block above.
 
 ### VS Code
 
-Requires **VS Code 1.99+** and the **GitHub Copilot** extension (agent mode). Node.js 18+ must be on your PATH.
+Requires **VS Code 1.99+** and the **GitHub Copilot** extension.
 
-**Step 1 — Install the GitHub Copilot extension**
+**1 — Install Copilot:** `Ctrl+Shift+X` → search **GitHub Copilot** → Install → sign in.
 
-Open VS Code → Extensions (`Ctrl+Shift+X`) → search **GitHub Copilot** → Install.
-Sign in with your GitHub account when prompted.
+**2 — Enable agent mode:** `Ctrl+,` → search `chat.agent.enabled` → tick checkbox.
 
-**Step 2 — Enable agent mode**
-
-Open VS Code Settings (`Ctrl+,`) → search `chat.agent.enabled` → tick **Enable agent mode**.
-
-**Step 3 — Add the MCP server**
-
-Open your user `settings.json` using **one** of these methods:
-
-- Command Palette (`Ctrl+Shift+P`) → type **Preferences: Open User Settings (JSON)** → Enter
-- Or open the file directly:
+**3 — Open `settings.json`:**
+- `Ctrl+Shift+P` → **`Preferences: Open User Settings (JSON)`** *(include the `Preferences:` prefix)*
+- Or navigate directly:
   - Windows: `%APPDATA%\Code\User\settings.json`
   - macOS: `~/Library/Application Support/Code/User/settings.json`
+  - Linux: `~/.config/Code/User/settings.json`
 
-Add the `mcp` block (merge with any existing content — do not replace the whole file):
+**4 — Add the MCP block** (merge — do not replace the whole file):
 
 ```json
 {
@@ -154,30 +157,13 @@ Add the `mcp` block (merge with any existing content — do not replace the whol
 }
 ```
 
-Save the file (`Ctrl+S`).
+**5 — Reload:** `Ctrl+Shift+P` → **Developer: Reload Window**
 
-**Step 4 — Reload VS Code**
-
-Press `Ctrl+Shift+P` → **Developer: Reload Window**.
-
-**Step 5 — Verify**
-
-Open Copilot Chat (`Ctrl+Alt+I`) → click the **Agent** tab (or type `@laravel-herd`) → click the **Tools** icon (plug symbol).
-You should see **laravel-herd** listed with all 218 tools available.
-
-> **macOS paths**
-> Settings JSON: `~/Library/Application Support/Code/User/settings.json`
-> Or open via Command Palette as shown above — same on all platforms.
-
-> **Alternative: Continue extension**
-> Install [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) → open `~/.continue/config.json` → add under `"mcpServers"`:
-> ```json
-> { "name": "laravel-herd", "command": "npx", "args": ["-y", "laravel-herd-mcp"] }
-> ```
+**6 — Verify:** `Ctrl+Alt+I` → Copilot Chat → **Agent** tab → **Tools** icon (🔌) → `laravel-herd` should appear.
 
 ### Cursor
 
-Add to `~/.cursor/mcp.json` (create if it doesn't exist):
+Create or edit `~/.cursor/mcp.json`:
 
 ```json
 {
@@ -190,11 +176,54 @@ Add to `~/.cursor/mcp.json` (create if it doesn't exist):
 }
 ```
 
-Restart Cursor. Tools appear in **Cursor Settings → MCP**.
+Restart Cursor → check **Cursor Settings → MCP**.
 
 ### Windsurf (Codeium)
 
-Add to `~/.codeium/windsurf/mcp_config.json`:
+Create or edit `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "laravel-herd": {
+      "command": "npx",
+      "args": ["-y", "laravel-herd-mcp"]
+    }
+  }
+}
+```
+
+### Zed
+
+Edit `~/.config/zed/settings.json`:
+
+```json
+{
+  "context_servers": {
+    "laravel-herd": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "laravel-herd-mcp"]
+      }
+    }
+  }
+}
+```
+
+### OpenAI Codex CLI
+
+Append to `~/.codex/config.toml`:
+
+```toml
+[[mcp_servers]]
+name = "laravel-herd"
+command = "npx"
+args = ["-y", "laravel-herd-mcp"]
+```
+
+### Antigravity
+
+Create or edit `~/.antigravity/mcp.json`:
 
 ```json
 {
@@ -209,15 +238,17 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
 
 ### PhpStorm / JetBrains IDEs
 
-1. Install the **JetBrains AI Assistant** plugin
-2. Go to **Settings → Tools → AI Assistant → Model Context Protocol (MCP)**
+1. Open **Settings** (`Ctrl+Alt+S`)
+2. Navigate to **Tools → AI Assistant → Model Context Protocol (MCP)**
 3. Click **+** → **As Process**
-4. Command: `npx`, Arguments: `-y laravel-herd-mcp`
-5. Apply and restart the IDE
+4. **Command:** `npx` — **Arguments:** `-y laravel-herd-mcp`
+5. Click **Apply** → restart the IDE
 
-### Other MCP clients (Antigravity, Zed, etc.)
+See [`install-mcp-wizard/configs/phpstorm.xml`](install-mcp-wizard/configs/phpstorm.xml) for the XML snippet.
 
-Any client that supports MCP stdio transport works. Use:
+### Other MCP clients
+
+Any client that supports MCP stdio transport:
 
 ```json
 {
@@ -227,6 +258,7 @@ Any client that supports MCP stdio transport works. Use:
 ```
 
 Check your client's documentation for the config file location and format.
+See [`install-mcp-wizard/configs/generic.json`](install-mcp-wizard/configs/generic.json).
 
 ### Custom Herd path
 
@@ -419,20 +451,42 @@ MIT — see [LICENSE](LICENSE)
 
 ## Related
 
+### This project
+
+| Resource | Link |
+|---|---|
+| **GitHub repository** | [github.com/movinginfo/laravel-herd-mcp](https://github.com/movinginfo/laravel-herd-mcp) |
+| **npm package** | [npmjs.com/package/laravel-herd-mcp](https://www.npmjs.com/package/laravel-herd-mcp) |
+| **Tool reference** | [tools.md](tools.md) — all 218 tools across 20 categories |
+| **MCP install wizard** | [install-mcp-wizard/README.md](install-mcp-wizard/README.md) |
+
 ### Core
 
 | Repo / Project | Role |
 |---|---|
 | [laravel/herd](https://herd.laravel.com) | The PHP development environment this server controls |
-| [modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) · [modelcontextprotocol.io](https://modelcontextprotocol.io) | MCP SDK and protocol spec powering the integration |
-| [Claude Desktop](https://claude.ai/download) · [Claude Code](https://claude.ai/claude-code) | AI clients that connect to this MCP server |
+| [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) · [modelcontextprotocol.io](https://modelcontextprotocol.io) | MCP SDK and protocol spec |
+
+### Supported AI clients
+
+| Client | Docs |
+|---|---|
+| [Claude Desktop](https://claude.ai/download) | Anthropic desktop app — stdio MCP |
+| [Claude Code](https://claude.ai/claude-code) | Anthropic CLI — `claude mcp add` |
+| [VS Code](https://code.visualstudio.com) + [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) | settings.json `mcp.servers` |
+| [Cursor](https://cursor.sh) | `~/.cursor/mcp.json` |
+| [Windsurf (Codeium)](https://codeium.com/windsurf) | `~/.codeium/windsurf/mcp_config.json` |
+| [Zed](https://zed.dev) | `~/.config/zed/settings.json` `context_servers` |
+| [PhpStorm / JetBrains](https://www.jetbrains.com/phpstorm/) | Settings → AI Assistant → MCP |
+| [Antigravity](https://antigravity.dev) | `~/.antigravity/mcp.json` |
+| [OpenAI Codex CLI](https://github.com/openai/codex) | `~/.codex/config.toml` |
 
 ### Laravel packages integrated
 
 | Package | Tools |
 |---|---|
 | [laravel/telescope](https://github.com/laravel/telescope) | `telescope_*` — 19 tools: requests, queries, exceptions, jobs, mail, events… |
-| [laravel/pulse](https://github.com/laravel/pulse) | `pulse_*` — 16 tools: slow requests/queries/jobs, exceptions, cache, servers… |
+| [laravel/pulse](https://github.com/laravel/pulse) | `pulse_*` — 14 tools: slow requests/queries/jobs, exceptions, cache, servers… |
 | [laravel/nightwatch](https://github.com/laravel/nightwatch) | `nightwatch_*` — 7 tools: install, agent start/stop, enable/disable, configure |
 | [laravel/horizon](https://github.com/laravel/horizon) | `horizon_*` — status, pause, continue, terminate |
 | [laravel/boost](https://github.com/laravel/boost) | `boost_*` — AI coding guidelines, MCP config |
@@ -453,10 +507,6 @@ MIT — see [LICENSE](LICENSE)
 
 | Package | Purpose |
 |---|---|
-| [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) | MCP server SDK (stdio + SSE) |
+| [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) | MCP server SDK (stdio + HTTP/SSE) |
 | [express](https://github.com/expressjs/express) | HTTP server for `--http` / SSE mode |
 | [zod](https://github.com/colinhacks/zod) | Runtime schema validation for all tool inputs |
-
-### Tools reference
-
-- [tools.md](tools.md) — Complete reference of all 218 tools across 20 categories

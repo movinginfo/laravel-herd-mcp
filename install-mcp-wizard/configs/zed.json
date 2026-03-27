@@ -1,0 +1,10 @@
+{
+  "context_servers": {
+    "laravel-herd": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "laravel-herd-mcp"]
+      }
+    }
+  }
+}

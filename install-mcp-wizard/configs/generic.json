@@ -1,0 +1,10 @@
+{
+  "_comment": "Generic stdio MCP server config for Antigravity, Zed, Continue, or any MCP-compatible client.",
+  "_docs": "https://github.com/movinginfo/laravel-herd-mcp",
+  "mcpServers": {
+    "laravel-herd": {
+      "command": "npx",
+      "args": ["-y", "laravel-herd-mcp"]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PhpStorm / JetBrains AI Assistant — MCP Server configuration snippet.
+
+  File location (varies by IDE version):
+    Windows: %APPDATA%\JetBrains\PhpStorm<version>\options\mcp.xml
+    macOS:   ~/Library/Application Support/JetBrains/PhpStorm<version>/options/mcp.xml
+    Linux:   ~/.config/JetBrains/PhpStorm<version>/options/mcp.xml
+
+  PREFERRED METHOD — use the IDE UI instead:
+    Settings → Tools → AI Assistant → Model Context Protocol (MCP) → + → As Process
+    Command:   npx
+    Arguments: -y laravel-herd-mcp
+
+  If you want to add manually, merge the <server> element below into
+  the existing mcp.xml file for your IDE version.
+-->
+<application>
+  <component name="McpServerManager">
+    <servers>
+      <server
+        id="laravel-herd"
+        name="laravel-herd"
+        command="npx"
+        parameters="-y laravel-herd-mcp"
+        enabled="true"
+      />
+    </servers>
+  </component>
+</application>

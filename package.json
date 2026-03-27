@@ -1,7 +1,7 @@
 {
   "name": "laravel-herd-mcp",
   "version": "0.1.24",
-  "description": "MCP server for full Laravel Herd control on Windows — 204 tools for sites, PHP, SSL, proxies, services, NVM, artisan, composer, forge, telescope, nightwatch and more",
+  "description": "218 MCP tools for full Laravel Herd control — sites, PHP, SSL, Pulse, Telescope, Nightwatch, Forge CLI and more. Works on Windows and macOS.",
   "main": "dist/index.js",
   "bin": {
     "laravel-herd-mcp": "dist/index.js"
@@ -19,7 +19,15 @@
     "laravel",
     "herd",
     "claude",
-    "windows"
+    "windows",
+    "macos",
+    "vscode",
+    "cursor",
+    "telescope",
+    "pulse",
+    "nightwatch",
+    "forge",
+    "artisan"
   ],
   "author": "",
   "license": "MIT",

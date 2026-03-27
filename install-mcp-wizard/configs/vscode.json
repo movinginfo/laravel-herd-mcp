@@ -1,0 +1,11 @@
+{
+  "mcp": {
+    "servers": {
+      "laravel-herd": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "laravel-herd-mcp"]
+      }
+    }
+  }
+}

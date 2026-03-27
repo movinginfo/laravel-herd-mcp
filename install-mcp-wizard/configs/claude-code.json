@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "laravel-herd": {
+      "command": "npx",
+      "args": ["-y", "laravel-herd-mcp"]
+    }
+  }
+}
