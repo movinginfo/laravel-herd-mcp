@@ -1,26 +1,53 @@
 {
-  "_comment": "Antigravity MCP config — file location: %USERPROFILE%\\.gemini\\antigravity\\mcp_config.json (Windows) or ~/.gemini/antigravity/mcp_config.json (macOS)",
-  "_important": "MERGE laravel-herd into the existing mcpServers object. Never add a second top-level {} block.",
+  "_comment": "Antigravity MCP config — file location:",
+  "_windows": "%USERPROFILE%\\.gemini\\antigravity\\mcp_config.json",
+  "_macos":   "~/.gemini/antigravity/mcp_config.json",
 
-  "mcpServers": {
-    "laravel-herd": {
-      "command": "node",
-      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
-    }
+  "_important": "MERGE into the existing mcpServers object. Never add a second top-level {} block.",
+
+  "_why_groups": "Antigravity has a 100-tool limit per server. laravel-herd-mcp has 218 tools total, so we split into groups using the --group flag.",
+
+  "_groups": {
+    "herd":       "~70 tools — Herd control, sites, PHP, SSL, NVM, services, setup",
+    "laravel":    "~78 tools — artisan, composer, database, SQL, cache, queues, Boost",
+    "monitoring": "~89 tools — Telescope, Pulse, Debugbar, Nightwatch, Forge CLI, Ray"
   },
 
-  "_npm_alternative": {
-    "_comment": "Once laravel-herd-mcp is published to npm, use this instead:",
+  "_recommended_config_local_build": {
+    "_note": "Use this when the package is NOT yet published to npm (uses local dist/index.js)",
     "mcpServers": {
       "laravel-herd": {
-        "command": "npx",
-        "args": ["-y", "laravel-herd-mcp"]
+        "command": "node",
+        "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=laravel"]
+      },
+      "laravel-herd-monitoring": {
+        "command": "node",
+        "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=monitoring"]
+      },
+      "laravel-herd-infra": {
+        "_optional": "Add this third entry if you also need site/PHP/SSL tools in Antigravity",
+        "command": "node",
+        "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=herd"]
       }
     }
   },
 
-  "_example_with_existing_servers": {
-    "_comment": "Example if you already have context7 or other servers:",
+  "_recommended_config_npm": {
+    "_note": "Use this once laravel-herd-mcp is published to npm",
+    "mcpServers": {
+      "laravel-herd": {
+        "command": "npx",
+        "args": ["-y", "laravel-herd-mcp", "--group=laravel"]
+      },
+      "laravel-herd-monitoring": {
+        "command": "npx",
+        "args": ["-y", "laravel-herd-mcp", "--group=monitoring"]
+      }
+    }
+  },
+
+  "_example_with_context7": {
+    "_note": "Full example including an existing context7 server",
     "mcpServers": {
       "context7": {
         "serverUrl": "https://mcp.context7.com/mcp",
@@ -30,7 +57,11 @@
       },
       "laravel-herd": {
         "command": "node",
-        "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
+        "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=laravel"]
+      },
+      "laravel-herd-monitoring": {
+        "command": "node",
+        "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=monitoring"]
       }
     }
   }

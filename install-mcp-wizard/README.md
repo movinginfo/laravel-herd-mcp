@@ -269,6 +269,17 @@ Config file: `%USERPROFILE%\.gemini\antigravity\mcp_config.json` (Windows) / `~/
 
 Config snippet: [`configs/antigravity.json`](configs/antigravity.json)
 
+> ⚠️ **Antigravity has a 100-tool limit per MCP server.** laravel-herd-mcp has 218 tools total.
+> Use the `--group` flag to split into instances that each stay under the limit.
+
+| Group flag | Tools | What's included |
+|-----------|------:|-----------------|
+| `--group=herd` | ~70 | Herd control, sites, PHP, SSL, NVM, services, setup |
+| `--group=laravel` | ~78 | artisan, composer, database, SQL, cache, queues, Boost |
+| `--group=monitoring` | ~89 | Telescope, Pulse, Debugbar, Nightwatch, Forge CLI, Ray |
+
+Register **two** server instances in `mcp_config.json` — one for Laravel dev, one for monitoring — for full coverage under the limit.
+
 **Option A — local build** (use this until the package is published to npm):
 
 ```json
@@ -276,7 +287,11 @@ Config snippet: [`configs/antigravity.json`](configs/antigravity.json)
   "mcpServers": {
     "laravel-herd": {
       "command": "node",
-      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
+      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=laravel"]
+    },
+    "laravel-herd-monitoring": {
+      "command": "node",
+      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=monitoring"]
     }
   }
 }
@@ -289,13 +304,17 @@ Config snippet: [`configs/antigravity.json`](configs/antigravity.json)
   "mcpServers": {
     "laravel-herd": {
       "command": "npx",
-      "args": ["-y", "laravel-herd-mcp"]
+      "args": ["-y", "laravel-herd-mcp", "--group=laravel"]
+    },
+    "laravel-herd-monitoring": {
+      "command": "npx",
+      "args": ["-y", "laravel-herd-mcp", "--group=monitoring"]
     }
   }
 }
 ```
 
-> ⚠️ **Critical:** if the file already has other servers (e.g. `context7`), merge `laravel-herd` **inside the existing `mcpServers` object**. Never add a second `{ "mcpServers": ... }` block — that produces invalid JSON and breaks all servers.
+> ⚠️ **Critical:** if the file already has other servers (e.g. `context7`), merge all entries **inside the existing `mcpServers` object**. Never add a second `{ "mcpServers": ... }` block — that produces invalid JSON and breaks all servers.
 
 ```json
 {
@@ -306,7 +325,11 @@ Config snippet: [`configs/antigravity.json`](configs/antigravity.json)
     },
     "laravel-herd": {
       "command": "node",
-      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
+      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=laravel"]
+    },
+    "laravel-herd-monitoring": {
+      "command": "node",
+      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js", "--group=monitoring"]
     }
   }
 }

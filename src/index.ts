@@ -16,7 +16,10 @@ async function main(): Promise<void> {
   const port = portFlag ? parseInt(portFlag.split('=')[1], 10) : 3000;
   const herdPath = herdPathFlag ? herdPathFlag.split('=')[1] : undefined;
 
-  const server = createServer({ herdPath });
+  const groupFlag = args.find(a => a.startsWith('--group='));
+  const group = (groupFlag ? groupFlag.split('=')[1] : 'all') as import('./server.js').ToolGroup;
+
+  const server = createServer({ herdPath, group });
 
   if (httpFlag) {
     // HTTP/SSE mode — expose port for tools that need to construct URLs
