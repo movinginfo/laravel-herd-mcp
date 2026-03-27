@@ -265,7 +265,24 @@ Config snippet: [`configs/codex.toml`](configs/codex.toml)
 
 ### Antigravity
 
-Create or edit `~/.gemini/antigravity/mcp_config.json` (Windows: `%USERPROFILE%\.gemini\antigravity\mcp_config.json`):
+Config file: `%USERPROFILE%\.gemini\antigravity\mcp_config.json` (Windows) / `~/.gemini/antigravity/mcp_config.json` (macOS)
+
+Config snippet: [`configs/antigravity.json`](configs/antigravity.json)
+
+**Option A — local build** (use this until the package is published to npm):
+
+```json
+{
+  "mcpServers": {
+    "laravel-herd": {
+      "command": "node",
+      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
+    }
+  }
+}
+```
+
+**Option B — npm** (once `laravel-herd-mcp` is published):
 
 ```json
 {
@@ -278,7 +295,7 @@ Create or edit `~/.gemini/antigravity/mcp_config.json` (Windows: `%USERPROFILE%\
 }
 ```
 
-**Important:** if you already have other servers in the file (e.g. `context7`), merge the `laravel-herd` entry inside the **existing** `mcpServers` object — do not paste a second `{...}` block. One file, one `mcpServers` object, all servers inside it:
+> ⚠️ **Critical:** if the file already has other servers (e.g. `context7`), merge `laravel-herd` **inside the existing `mcpServers` object**. Never add a second `{ "mcpServers": ... }` block — that produces invalid JSON and breaks all servers.
 
 ```json
 {
@@ -288,14 +305,14 @@ Create or edit `~/.gemini/antigravity/mcp_config.json` (Windows: `%USERPROFILE%\
       "headers": { "CONTEXT7_API_KEY": "your-key" }
     },
     "laravel-herd": {
-      "command": "npx",
-      "args": ["-y", "laravel-herd-mcp"]
+      "command": "node",
+      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
     }
   }
 }
 ```
 
-Config snippet: [`configs/generic.json`](configs/generic.json)
+Config snippet: [`configs/antigravity.json`](configs/antigravity.json)
 
 ---
 

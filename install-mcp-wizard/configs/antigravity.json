@@ -1,0 +1,37 @@
+{
+  "_comment": "Antigravity MCP config — file location: %USERPROFILE%\\.gemini\\antigravity\\mcp_config.json (Windows) or ~/.gemini/antigravity/mcp_config.json (macOS)",
+  "_important": "MERGE laravel-herd into the existing mcpServers object. Never add a second top-level {} block.",
+
+  "mcpServers": {
+    "laravel-herd": {
+      "command": "node",
+      "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
+    }
+  },
+
+  "_npm_alternative": {
+    "_comment": "Once laravel-herd-mcp is published to npm, use this instead:",
+    "mcpServers": {
+      "laravel-herd": {
+        "command": "npx",
+        "args": ["-y", "laravel-herd-mcp"]
+      }
+    }
+  },
+
+  "_example_with_existing_servers": {
+    "_comment": "Example if you already have context7 or other servers:",
+    "mcpServers": {
+      "context7": {
+        "serverUrl": "https://mcp.context7.com/mcp",
+        "headers": {
+          "CONTEXT7_API_KEY": "your-key-here"
+        }
+      },
+      "laravel-herd": {
+        "command": "node",
+        "args": ["C:\\Work\\Laravel Herd MCP Plugin for Claude Code\\dist\\index.js"]
+      }
+    }
+  }
+}

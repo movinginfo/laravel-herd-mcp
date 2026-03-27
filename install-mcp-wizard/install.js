@@ -35,6 +35,33 @@ const YES      = args.includes('--yes');
 const LIST     = args.includes('--list');
 const DRY_RUN  = args.includes('--dry-run');
 
+// ─── Resolve command: npx (if published) or node <local dist> ─────────────────
+
+/**
+ * Returns { command, args } to launch the server.
+ * Prefers npx if the package is available on npm.
+ * Falls back to `node <absolute-path-to-dist/index.js>` for local dev/builds.
+ */
+function resolveServerCommand() {
+  // Check npm registry availability (quick HEAD-style check via npm view)
+  try {
+    execSync(`npm view ${PACKAGE} version`, { stdio: 'pipe', timeout: 8000 });
+    // Package is published — use npx
+    return { command: 'npx', args: ['-y', PACKAGE] };
+  } catch {
+    // Not on npm — resolve local dist/index.js relative to this script
+    // install-mcp-wizard/install.js → ../dist/index.js
+    const localDist = path.resolve(__dirname, '..', 'dist', 'index.js');
+    if (fs.existsSync(localDist)) {
+      return { command: 'node', args: [localDist] };
+    }
+    // Fallback: npx anyway (will show proper error to user)
+    return { command: 'npx', args: ['-y', PACKAGE] };
+  }
+}
+
+const SERVER_CMD = resolveServerCommand();
+
 // ─── Path helpers ─────────────────────────────────────────────────────────────
 
 function expandPath(p) {
@@ -249,7 +276,7 @@ function mergeVscode(configPath) {
   if (!cfg.mcp)               cfg.mcp = {};
   if (!cfg.mcp.servers)       cfg.mcp.servers = {};
   const already = !!cfg.mcp.servers[SERVER_NAME];
-  cfg.mcp.servers[SERVER_NAME] = { type: 'stdio', command: 'npx', args: ['-y', PACKAGE] };
+  cfg.mcp.servers[SERVER_NAME] = { type: 'stdio', command: SERVER_CMD.command, args: SERVER_CMD.args };
   return { cfg, already };
 }
 
@@ -257,7 +284,7 @@ function mergeMcpServers(configPath) {
   const cfg = readJson(configPath);
   if (!cfg.mcpServers)  cfg.mcpServers = {};
   const already = !!cfg.mcpServers[SERVER_NAME];
-  cfg.mcpServers[SERVER_NAME] = { command: 'npx', args: ['-y', PACKAGE] };
+  cfg.mcpServers[SERVER_NAME] = { command: SERVER_CMD.command, args: SERVER_CMD.args };
   return { cfg, already };
 }
 
@@ -265,12 +292,13 @@ function mergeZed(configPath) {
   const cfg = readJson(configPath);
   if (!cfg.context_servers) cfg.context_servers = {};
   const already = !!cfg.context_servers[SERVER_NAME];
-  cfg.context_servers[SERVER_NAME] = { command: { path: 'npx', args: ['-y', PACKAGE] } };
+  cfg.context_servers[SERVER_NAME] = { command: { path: SERVER_CMD.command, args: SERVER_CMD.args } };
   return { cfg, already };
 }
 
 function mergeToml(configPath) {
-  const block = `\n[[mcp_servers]]\nname = "${SERVER_NAME}"\ncommand = "npx"\nargs = ["-y", "${PACKAGE}"]\n`;
+  const argsStr = SERVER_CMD.args.map(a => `"${a}"`).join(', ');
+  const block = `\n[[mcp_servers]]\nname = "${SERVER_NAME}"\ncommand = "${SERVER_CMD.command}"\nargs = [${argsStr}]\n`;
   const dir = path.dirname(configPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   let existing = '';
@@ -357,6 +385,15 @@ async function main() {
   console.log('');
   console.log(c('bold', '  laravel-herd-mcp — MCP Installation Wizard'));
   console.log('  ' + c('grey', REPO));
+  console.log('');
+  // Show resolved command
+  const cmdStr = [SERVER_CMD.command, ...SERVER_CMD.args].join(' ');
+  const isLocal = SERVER_CMD.command === 'node';
+  console.log('  Server command: ' + c(isLocal ? 'yellow' : 'green', cmdStr));
+  if (isLocal) {
+    console.log('  ' + c('yellow', '⚠ Package not found on npm — using local dist/index.js'));
+    console.log('  ' + c('grey', 'Run `npm publish` to publish, then re-run this wizard for npx-based config.'));
+  }
   console.log('');
 
   // Detect installed IDEs
