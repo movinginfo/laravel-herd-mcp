@@ -118,12 +118,22 @@ Or add to `~/.claude/settings.json` manually:
 
 ### VS Code
 
-Requires VS Code 1.99+ with [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (agent mode) or the [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) extension.
+Requires **VS Code 1.99+** and the **GitHub Copilot** extension (agent mode). Node.js 18+ must be on your PATH.
 
-**Auto-configure:** run `setup_integrations` from any MCP client — it writes to `settings.json` automatically.
+**Step 1 — Install the GitHub Copilot extension**
 
-**Manual:** add to your VS Code user `settings.json`
-(`%APPDATA%\Code\User\settings.json` on Windows · `~/Library/Application Support/Code/User/settings.json` on macOS):
+Open VS Code → Extensions (`Ctrl+Shift+X`) → search **GitHub Copilot** → Install.
+Sign in with your GitHub account when prompted.
+
+**Step 2 — Enable agent mode**
+
+Open VS Code Settings (`Ctrl+,`) → search `chat.agent.enabled` → tick **Enable agent mode**.
+
+**Step 3 — Add the MCP server**
+
+Open the Command Palette (`Ctrl+Shift+P`) → type **Open User Settings (JSON)** → Enter.
+
+Add the `mcp` block (merge with any existing content — do not replace the whole file):
 
 ```json
 {
@@ -139,7 +149,26 @@ Requires VS Code 1.99+ with [GitHub Copilot](https://marketplace.visualstudio.co
 }
 ```
 
-Reload VS Code. The `laravel-herd` server will appear under **GitHub Copilot → Agent → Tools**.
+Save the file (`Ctrl+S`).
+
+**Step 4 — Reload VS Code**
+
+Press `Ctrl+Shift+P` → **Developer: Reload Window**.
+
+**Step 5 — Verify**
+
+Open Copilot Chat (`Ctrl+Alt+I`) → click the **Agent** tab (or type `@laravel-herd`) → click the **Tools** icon (plug symbol).
+You should see **laravel-herd** listed with all 218 tools available.
+
+> **macOS paths**
+> Settings JSON: `~/Library/Application Support/Code/User/settings.json`
+> Or open via Command Palette as shown above — same on all platforms.
+
+> **Alternative: Continue extension**
+> Install [Continue](https://marketplace.visualstudio.com/items?itemName=Continue.continue) → open `~/.continue/config.json` → add under `"mcpServers"`:
+> ```json
+> { "name": "laravel-herd", "command": "npx", "args": ["-y", "laravel-herd-mcp"] }
+> ```
 
 ### Cursor
 
