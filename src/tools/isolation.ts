@@ -27,7 +27,7 @@ export function registerIsolationTools(server: McpServer, client: HerdHttpClient
   server.tool('list_isolated_sites', 'List all sites using isolated PHP versions', {}, async () => {
     try {
       const result = runner.herd(['isolated']);
-      return textResult(result.stdout || 'No isolated sites.');
+      return textResult(result.stdout ? runner.toMarkdownTable(result.stdout) : 'No isolated sites.');
     } catch (e) { return errorResult(e instanceof Error ? e.message : String(e)); }
   });
 }

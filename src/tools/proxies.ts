@@ -28,7 +28,7 @@ export function registerProxiesTools(server: McpServer, runner: CliRunner): void
   server.tool('list_proxies', 'List all configured Nginx proxies', {}, async () => {
     try {
       const result = runner.herd(['proxies']);
-      return textResult(result.stdout || 'No proxies configured.');
+      return textResult(result.stdout ? runner.toMarkdownTable(result.stdout) : 'No proxies configured.');
     } catch (e) { return errorResult(e instanceof Error ? e.message : String(e)); }
   });
 }

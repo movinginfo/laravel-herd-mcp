@@ -36,7 +36,7 @@ export function registerParksTools(server: McpServer, runner: CliRunner): void {
   server.tool('list_parked_sites', 'List all sites resolving from parked directories', {}, async () => {
     try {
       const result = runner.herd(['parked']);
-      return textResult(result.stdout || 'No parked sites found.');
+      return textResult(result.stdout ? runner.toMarkdownTable(result.stdout) : 'No parked sites found.');
     } catch (e) { return errorResult(e); }
   });
 }

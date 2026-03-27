@@ -26,7 +26,7 @@ export function registerSslTools(server: McpServer, client: HerdHttpClient, runn
   server.tool('list_secured_sites', 'List all HTTPS-secured sites with certificate expiry dates', {}, async () => {
     try {
       const result = runner.herd(['secured']);
-      return textResult(result.stdout || 'No secured sites.');
+      return textResult(result.stdout ? runner.toMarkdownTable(result.stdout) : 'No secured sites.');
     } catch (e) { return errorResult(e instanceof Error ? e.message : String(e)); }
   });
 }

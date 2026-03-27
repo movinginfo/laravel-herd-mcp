@@ -8,14 +8,16 @@ export function registerServicesTools(server: McpServer, runner: CliRunner): voi
   server.tool('services_list', 'List all installed Herd services (MySQL, Redis, etc.) — requires Herd Pro', {}, async () => {
     try {
       const result = runner.herd(['services:list']);
-      return textResult(result.stdout || result.stderr || 'No services installed.');
+      const out = result.stdout || result.stderr;
+      return textResult(out ? runner.toMarkdownTable(out) : 'No services installed.');
     } catch (e) { return errorResult(e); }
   });
 
   server.tool('services_available', 'List all available Herd service types that can be created — requires Herd Pro', {}, async () => {
     try {
       const result = runner.herd(['services:available']);
-      return textResult(result.stdout || result.stderr || 'No service types available.');
+      const out = result.stdout || result.stderr;
+      return textResult(out ? runner.toMarkdownTable(out) : 'No service types available.');
     } catch (e) { return errorResult(e); }
   });
 
@@ -24,7 +26,8 @@ export function registerServicesTools(server: McpServer, runner: CliRunner): voi
   }, async ({ type }) => {
     try {
       const result = runner.herd(['services:versions', type]);
-      return textResult(result.stdout || result.stderr || `No versions found for ${type}.`);
+      const out = result.stdout || result.stderr;
+      return textResult(out ? runner.toMarkdownTable(out) : `No versions found for ${type}.`);
     } catch (e) { return errorResult(e); }
   });
 

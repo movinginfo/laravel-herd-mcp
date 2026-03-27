@@ -30,7 +30,7 @@ export function registerLinksTools(server: McpServer, runner: CliRunner): void {
   server.tool('list_links', 'List all linked Herd sites', {}, async () => {
     try {
       const result = runner.herd(['links']);
-      return textResult(result.stdout || 'No linked sites found.');
+      return textResult(result.stdout ? runner.toMarkdownTable(result.stdout) : 'No linked sites found.');
     } catch (e) { return errorResult(e); }
   });
 }

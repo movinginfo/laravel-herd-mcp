@@ -164,6 +164,24 @@ export class CliRunner {
     });
   }
 
+  /**
+   * Convert ASCII CLI table output (+---+---+ / | ... |) to a Markdown table.
+   * Falls back to the original text if the output is not a recognised table.
+   */
+  toMarkdownTable(raw: string): string {
+    const rows = this.parseTableOutput(raw);
+    if (rows.length === 0) return raw;
+
+    const headers = Object.keys(rows[0]);
+    const header    = '| ' + headers.join(' | ') + ' |';
+    const separator = '| ' + headers.map(() => '---').join(' | ') + ' |';
+    const body      = rows.map(row =>
+      '| ' + headers.map(h => row[h] ?? '').join(' | ') + ' |'
+    ).join('\n');
+
+    return [header, separator, body].join('\n');
+  }
+
   assertSuccess(result: CliResult, context: string): void {
     if (result.exitCode !== 0) {
       throw new Error(`${context} failed: ${result.stderr || result.stdout}`);

@@ -8,7 +8,7 @@ export function registerSitesTools(server: McpServer, client: HerdHttpClient, ru
   server.tool('list_all_sites', 'List all Herd sites (name, URL, PHP version, SSL status, path)', {}, async () => {
     try {
       const result = runner.herd(['sites']);
-      return textResult(result.stdout || 'No sites found.');
+      return textResult(result.stdout ? runner.toMarkdownTable(result.stdout) : 'No sites found.');
     } catch (e) { return errorResult(e); }
   });
 
