@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { getActiveProject } from '../active-project.js';
 
 export function registerCoreTools(server: McpServer, runner: CliRunner): void {
   server.tool('start_herd', 'Start all Herd services (Nginx, PHP-FPM, DNS)', {}, async () => {
@@ -46,13 +47,17 @@ export function registerCoreTools(server: McpServer, runner: CliRunner): void {
     } catch (e) { return errorResult(e); }
   });
 
-  server.tool('open_site_in_ide', 'Open the current site directory in the configured IDE', {
-    cwd: z.string().optional().describe('Site directory path (herd edit opens the current directory)'),
+  server.tool('open_site_in_ide', 'Open a site folder in the IDE configured in Herd. Uses the active project path when no cwd is provided.', {
+    cwd: z.string().optional().describe('Site directory path — defaults to the active project (set via project_select)'),
   }, async ({ cwd }) => {
     try {
-      const result = runner.herd(['edit'], cwd);
+      const dir = cwd ?? getActiveProject()?.path;
+      if (!dir) {
+        return errorResult('No path provided and no active project selected. Call project_select first, or pass a cwd.');
+      }
+      const result = runner.herd(['edit'], dir);
       runner.assertSuccess(result, 'open_site_in_ide');
-      return textResult(result.stdout || 'Opened in IDE.');
+      return textResult(result.stdout || `Opened ${dir} in IDE.`);
     } catch (e) { return errorResult(e); }
   });
 }

@@ -39,12 +39,13 @@ export function registerProjectTools(server: McpServer, runner: CliRunner): void
 
   server.tool(
     'project_select',
-    'Select the active Laravel project. All tools (artisan, composer, telescope, etc.) will then default to this project without needing an explicit cwd. Pass a site name from Herd (e.g. "laravel-13vue") and the path will be resolved automatically, or provide a direct path.',
+    'Select the active Laravel project. All tools (artisan, composer, telescope, etc.) will then default to this project without needing an explicit cwd. Pass a site name from Herd (e.g. "laravel-13vue") and the path will be resolved automatically, or provide a direct path. Set open_in_ide=true to also open the project folder in the IDE.',
     {
-      site:  z.string().optional().describe('Site name from Herd (e.g. "laravel-13vue") — path is auto-resolved'),
-      path:  z.string().optional().describe('Direct path to Laravel project root — use when the project is not a Herd site'),
+      site:        z.string().optional().describe('Site name from Herd (e.g. "laravel-13vue") — path is auto-resolved'),
+      path:        z.string().optional().describe('Direct path to Laravel project root — use when the project is not a Herd site'),
+      open_in_ide: z.boolean().optional().describe('Open the project folder in the IDE after selecting (default: false)'),
     },
-    async ({ site, path: directPath }) => {
+    async ({ site, path: directPath, open_in_ide }) => {
       try {
         if (!site && !directPath) {
           // List available sites so the user can choose
@@ -57,25 +58,46 @@ export function registerProjectTools(server: McpServer, runner: CliRunner): void
           return textResult(`Available sites — call project_select with the site name:\n\n${list}\n\nExample: project_select site="laravel-13vue"`);
         }
 
+        let projectName: string;
+        let projectPath: string;
+        let projectUrl: string | undefined;
+
         if (directPath) {
           // Use the path directly, derive name from the last path segment
-          const name = directPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() ?? directPath;
-          setActiveProject(name, directPath);
-          return textResult(`Active project set to: ${name}\nPath: ${directPath}\n\nAll tools will now default to this project.`);
+          projectName = directPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() ?? directPath;
+          projectPath = directPath;
+        } else {
+          // Look up site in Herd sites list
+          const result = runner.herd(['sites']);
+          const sites = parseSitesTable(result.stdout ?? '');
+          const match = sites.find(s => s.name.toLowerCase() === site!.toLowerCase());
+
+          if (!match) {
+            const available = sites.map((s, i) => `${i + 1}. ${s.name}`).join('\n');
+            return errorResult(`Site "${site}" not found in Herd.\n\nAvailable sites:\n${available}`);
+          }
+
+          projectName = match.name;
+          projectPath = match.path;
+          projectUrl  = match.url;
         }
 
-        // Look up site in Herd sites list
-        const result = runner.herd(['sites']);
-        const sites = parseSitesTable(result.stdout ?? '');
-        const match = sites.find(s => s.name.toLowerCase() === site!.toLowerCase());
+        setActiveProject(projectName, projectPath);
 
-        if (!match) {
-          const available = sites.map((s, i) => `${i + 1}. ${s.name}`).join('\n');
-          return errorResult(`Site "${site}" not found in Herd.\n\nAvailable sites:\n${available}`);
+        const lines = [
+          `Active project set to: ${projectName}`,
+          `Path: ${projectPath}`,
+          ...(projectUrl ? [`URL:  ${projectUrl}`] : []),
+          '',
+          'All tools will now default to this project.',
+        ];
+
+        if (open_in_ide) {
+          runner.herd(['edit'], projectPath);
+          lines.push(`IDE: opened in editor.`);
         }
 
-        setActiveProject(match.name, match.path);
-        return textResult(`Active project set to: ${match.name}\nPath: ${match.path}\nURL:  ${match.url}\n\nAll tools will now default to this project.`);
+        return textResult(lines.join('\n'));
       } catch (e: unknown) {
         return errorResult(e instanceof Error ? e.message : String(e));
       }
