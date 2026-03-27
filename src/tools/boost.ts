@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as os from 'os';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 function mergeJson(filePath: string, merge: (existing: Record<string, unknown>) => Record<string, unknown>): void {
   let existing: Record<string, unknown> = {};
@@ -24,9 +25,11 @@ export function registerBoostTools(server: McpServer, runner: CliRunner): void {
     'Install Laravel Boost in a project: composer require laravel/boost --dev + php artisan boost:install. ' +
     'Sets up AI coding guidelines in .ai/guidelines/ and registers the project MCP server.',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       const lines: string[] = [];
       try {
         // Step 1: composer require
@@ -54,10 +57,12 @@ export function registerBoostTools(server: McpServer, runner: CliRunner): void {
     'Register this project\'s Laravel Boost MCP server (php artisan boost:mcp) in Claude Code ~/.claude/settings.json. ' +
     'Each Laravel project gets its own Boost MCP server with project-specific AI guidelines.',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       name: z.string().optional().describe('MCP server name (defaults to the project folder name)'),
     },
-    async ({ cwd, name }) => {
+    async ({ cwd: _cwd, name }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const projectName = name ?? path.basename(cwd);
         const serverName = `boost-${projectName}`;
@@ -87,9 +92,11 @@ export function registerBoostTools(server: McpServer, runner: CliRunner): void {
   server.tool('boost_list_guidelines',
     'List AI guidelines installed by Laravel Boost (.ai/guidelines/) for a project.',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const guidelinesDir = path.join(cwd, '.ai', 'guidelines');
         if (!fs.existsSync(guidelinesDir)) {
@@ -108,11 +115,13 @@ export function registerBoostTools(server: McpServer, runner: CliRunner): void {
     'Add or overwrite a custom AI guideline file in .ai/guidelines/. ' +
     'Guidelines are Blade/Markdown files that teach Claude project-specific patterns.',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       file: z.string().describe('Relative path inside .ai/guidelines/ e.g. "my-patterns/auth.md"'),
       content: z.string().describe('Guideline content (Markdown or Blade with overview + examples)'),
     },
-    async ({ cwd, file, content }) => {
+    async ({ cwd: _cwd, file, content }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const target = path.join(cwd, '.ai', 'guidelines', file);
         fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -127,10 +136,12 @@ export function registerBoostTools(server: McpServer, runner: CliRunner): void {
   server.tool('boost_mcp_config',
     'Show the JSON snippet needed to register this project\'s Boost MCP server manually in any editor.',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       name: z.string().optional().describe('MCP server name (defaults to folder name)'),
     },
-    async ({ cwd, name }) => {
+    async ({ cwd: _cwd, name }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const projectName = name ?? path.basename(cwd);
         const serverName = `boost-${projectName}`;

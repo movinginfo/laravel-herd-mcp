@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 export function registerQueueTools(server: McpServer, runner: CliRunner): void {
 
@@ -10,9 +11,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('queue_failed',
     'List all failed queue jobs (php artisan queue:failed)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'queue:failed'], cwd);
         return textResult(result.stdout || result.stderr || 'No failed jobs.');
@@ -25,9 +28,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
     {
       id: z.string().optional().describe('Job UUID to retry, or "all" to retry all failed jobs (default: all)'),
       queue: z.string().optional().describe('Retry only jobs from this queue name'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ id, queue, cwd }) => {
+    async ({ id, queue, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['queue:retry', id ?? 'all'];
         if (queue) args.push('--queue=' + queue);
@@ -41,9 +46,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
     'Delete a single failed queue job by ID (php artisan queue:forget)',
     {
       id: z.string().describe('Failed job UUID'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ id, cwd }) => {
+    async ({ id, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'queue:forget', id], cwd);
         return textResult(result.stdout || result.stderr || `Failed job ${id} deleted.`);
@@ -55,9 +62,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
     'Delete all failed queue jobs (php artisan queue:flush)',
     {
       hours: z.number().optional().describe('Only delete jobs older than N hours'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ hours, cwd }) => {
+    async ({ hours, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['queue:flush'];
         if (hours) args.push('--hours=' + hours);
@@ -71,9 +80,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
     'Prune stale entries from the failed jobs table (php artisan queue:prune-failed)',
     {
       hours: z.number().optional().describe('Delete entries older than N hours (default: 24)'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ hours, cwd }) => {
+    async ({ hours, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['queue:prune-failed'];
         if (hours) args.push('--hours=' + hours);
@@ -90,9 +101,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
     {
       queue: z.string().optional().describe('Queue name to clear (default: "default")'),
       connection: z.string().optional().describe('Connection name e.g. "redis", "database"'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ queue, connection, cwd }) => {
+    async ({ queue, connection, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['queue:clear', '--force'];
         if (queue) args.push('--queue=' + queue);
@@ -106,9 +119,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('queue_restart',
     'Signal all queue workers to restart after current job (php artisan queue:restart)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'queue:restart'], cwd);
         return textResult(result.stdout || result.stderr || 'Queue restart signal sent.');
@@ -120,9 +135,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
     'Check queue sizes and alert when thresholds are exceeded (php artisan queue:monitor)',
     {
       queues: z.string().describe('Comma-separated queue:max pairs e.g. "default:50,emails:25" or just "default,emails"'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ queues, cwd }) => {
+    async ({ queues, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'queue:monitor', queues], cwd);
         return textResult(result.stdout || result.stderr || 'Queue sizes OK.');
@@ -135,9 +152,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('queue_failed_table',
     'Create the failed_jobs table migration (php artisan queue:failed-table)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'queue:failed-table'], cwd);
         return textResult(result.stdout || result.stderr || 'failed_jobs migration created.');
@@ -148,9 +167,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('queue_batches_table',
     'Create the job_batches table migration for Bus::batch() support (php artisan queue:batches-table)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'queue:batches-table'], cwd);
         return textResult(result.stdout || result.stderr || 'job_batches migration created.');
@@ -164,9 +185,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
       hours: z.number().optional().describe('Delete batches older than N hours (default: 24)'),
       unfinished: z.number().optional().describe('Delete unfinished batches older than N hours'),
       cancelled: z.number().optional().describe('Delete cancelled batches older than N hours'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ hours, unfinished, cancelled, cwd }) => {
+    async ({ hours, unfinished, cancelled, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['queue:prune-batches'];
         if (hours) args.push('--hours=' + hours);
@@ -183,11 +206,13 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('schedule_list',
     'List all scheduled tasks with next run time (php artisan schedule:list)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       timezone: z.string().optional().describe('Timezone for displaying run times e.g. "UTC", "Europe/London"'),
       json: z.boolean().optional().describe('Output as JSON'),
     },
-    async ({ cwd, timezone, json }) => {
+    async ({ cwd: _cwd, timezone, json }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['schedule:list'];
         if (timezone) args.push('--timezone=' + timezone);
@@ -201,9 +226,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('schedule_run',
     'Run due scheduled tasks immediately (php artisan schedule:run)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'schedule:run'], cwd);
         return textResult(result.stdout || result.stderr || 'Schedule run complete.');
@@ -215,9 +242,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
     'Test a scheduled command by name (php artisan schedule:test)',
     {
       name: z.string().optional().describe('Command to test e.g. "emails:send" (interactive selector if omitted)'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ name, cwd }) => {
+    async ({ name, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['schedule:test', '--no-interaction'];
         if (name) args.push('--name=' + name);
@@ -230,9 +259,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('schedule_clear_cache',
     'Clear all schedule mutex cache locks (php artisan schedule:clear-cache)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'schedule:clear-cache'], cwd);
         return textResult(result.stdout || result.stderr || 'Schedule cache cleared.');
@@ -245,9 +276,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('horizon_status',
     'Show Laravel Horizon status and queue metrics (requires laravel/horizon)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'horizon:status'], cwd);
         return textResult(result.stdout || result.stderr || 'Horizon not installed or not running.');
@@ -258,9 +291,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('horizon_pause',
     'Pause Horizon workers (php artisan horizon:pause)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'horizon:pause'], cwd);
         return textResult(result.stdout || result.stderr || 'Horizon paused.');
@@ -271,9 +306,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('horizon_continue',
     'Resume paused Horizon workers (php artisan horizon:continue)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'horizon:continue'], cwd);
         return textResult(result.stdout || result.stderr || 'Horizon resumed.');
@@ -284,9 +321,11 @@ export function registerQueueTools(server: McpServer, runner: CliRunner): void {
   server.tool('horizon_terminate',
     'Terminate Horizon master process after current jobs finish (php artisan horizon:terminate)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'horizon:terminate'], cwd);
         return textResult(result.stdout || result.stderr || 'Horizon terminating.');

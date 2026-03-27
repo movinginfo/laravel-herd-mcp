@@ -16,6 +16,7 @@ import { z } from 'zod';
 import * as fs from 'fs';
 import * as path from 'path';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd } from '../active-project.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,8 +65,9 @@ function resolveConfig(conn: {
 }): DbConfig {
   let cfg: DbConfig = { driver: 'mysql', host: '127.0.0.1', port: 3306, database: '', username: 'root', password: '' };
 
-  if (conn.cwd) {
-    const env = parseEnvFile(conn.cwd);
+  const resolvedCwd = resolveCwd(conn.cwd);
+  if (resolvedCwd) {
+    const env = parseEnvFile(resolvedCwd);
     const d = (env.DB_CONNECTION ?? 'mysql') as DbConfig['driver'];
     const defaultPort = d === 'pgsql' ? 5432 : d === 'sqlite' ? 0 : 3306;
     cfg = {

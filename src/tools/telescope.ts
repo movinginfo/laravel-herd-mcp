@@ -14,6 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -158,8 +159,10 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
 
   server.tool('telescope_install',
     'Install Laravel Telescope (composer require laravel/telescope --dev), publish assets, run migrations, enable in .env',
-    { cwd: z.string().describe('Laravel project root directory') },
-    async ({ cwd }) => {
+    { cwd: z.string().optional().describe('Laravel project root directory') },
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const lines: string[] = [];
         const req = runner.composer(['require', 'laravel/telescope', '--dev', '--no-interaction'], cwd);
@@ -186,8 +189,10 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
 
   server.tool('telescope_enable',
     'Enable Laravel Telescope by setting TELESCOPE_ENABLED=true in .env',
-    { cwd: z.string().describe('Laravel project root directory') },
-    async ({ cwd }) => {
+    { cwd: z.string().optional().describe('Laravel project root directory') },
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         setEnv(cwd, 'TELESCOPE_ENABLED', 'true');
         return textResult('Telescope ENABLED (TELESCOPE_ENABLED=true).\nMake requests to your site — data will be recorded in telescope_entries.');
@@ -197,8 +202,10 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
 
   server.tool('telescope_disable',
     'Disable Laravel Telescope by setting TELESCOPE_ENABLED=false in .env',
-    { cwd: z.string().describe('Laravel project root directory') },
-    async ({ cwd }) => {
+    { cwd: z.string().optional().describe('Laravel project root directory') },
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         setEnv(cwd, 'TELESCOPE_ENABLED', 'false');
         return textResult('Telescope DISABLED (TELESCOPE_ENABLED=false).\nExisting entries are kept. Use telescope_clear to wipe them.');
@@ -210,8 +217,10 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
 
   server.tool('telescope_status',
     'Show Telescope status: installed, enabled, total entry counts per watcher type',
-    { cwd: z.string().describe('Laravel project root directory') },
-    async ({ cwd }) => {
+    { cwd: z.string().optional().describe('Laravel project root directory') },
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const lock = path.join(cwd, 'composer.lock');
         const installed = fs.existsSync(lock) && fs.readFileSync(lock, 'utf8').includes('laravel/telescope');
@@ -249,7 +258,7 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_watchers',
     'Show or toggle individual Telescope watchers in .env (queries, logs, commands, gate, models, cache)',
     {
-      cwd:     z.string().describe('Laravel project root directory'),
+      cwd:     z.string().optional().describe('Laravel project root directory'),
       queries: z.boolean().optional().describe('Toggle query watcher (TELESCOPE_QUERY_WATCHER)'),
       logs:    z.boolean().optional().describe('Toggle log watcher (TELESCOPE_LOG_WATCHER)'),
       commands:z.boolean().optional().describe('Toggle command watcher (TELESCOPE_COMMAND_WATCHER)'),
@@ -257,7 +266,9 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
       models:  z.boolean().optional().describe('Toggle model watcher (TELESCOPE_MODEL_WATCHER)'),
       cache:   z.boolean().optional().describe('Toggle cache watcher (TELESCOPE_CACHE_WATCHER)'),
     },
-    async ({ cwd, queries, logs, commands, gate, models, cache }) => {
+    async ({ cwd: _cwd, queries, logs, commands, gate, models, cache }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const changes: string[] = [];
         const map = [
@@ -288,12 +299,14 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_requests',
     'Browse HTTP requests captured by Telescope. Shows method, URI, status, duration, memory, middleware.',
     {
-      cwd:        z.string().describe('Laravel project root directory'),
+      cwd:        z.string().optional().describe('Laravel project root directory'),
       limit:      z.number().min(1).max(200).optional().default(20).describe('Number of entries (default: 20)'),
       status:     z.number().optional().describe('Filter by HTTP status code e.g. 500, 404'),
       slow_only:  z.boolean().optional().describe('Show only slow requests (>1000ms)'),
     },
-    async ({ cwd, limit, status, slow_only }) => {
+    async ({ cwd: _cwd, limit, status, slow_only }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'request', (limit ?? 20) * 3); // over-fetch to allow filtering
         const entries = rows.map(r => ({ uuid: r.uuid, created_at: r.created_at, ...parseContent(r) }))
@@ -317,12 +330,14 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_queries',
     'Browse database queries captured by Telescope. Supports slow_only filter for N+1 detection.',
     {
-      cwd:       z.string().describe('Laravel project root directory'),
+      cwd:       z.string().optional().describe('Laravel project root directory'),
       limit:     z.number().min(1).max(200).optional().default(30).describe('Number of entries (default: 30)'),
       slow_only: z.boolean().optional().describe('Show only slow queries (above Telescope slow threshold)'),
       min_ms:    z.number().optional().describe('Show only queries slower than N ms'),
     },
-    async ({ cwd, limit, slow_only, min_ms }) => {
+    async ({ cwd: _cwd, limit, slow_only, min_ms }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'query', (limit ?? 30) * 3);
         const entries = rows.map(r => ({ uuid: r.uuid, created_at: r.created_at, ...parseContent(r) }))
@@ -346,10 +361,12 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_exceptions',
     'Browse exceptions captured by Telescope with class, message, file, line, and stack trace preview.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(100).optional().default(20).describe('Number of entries (default: 20)'),
     },
-    async ({ cwd, limit }) => {
+    async ({ cwd: _cwd, limit }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'exception', limit ?? 20);
         if (rows.length === 0) return textResult('No exceptions recorded.');
@@ -370,11 +387,13 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_logs',
     'Browse log entries captured by Telescope. Filter by level (emergency/alert/critical/error/warning/notice/info/debug).',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(200).optional().default(30).describe('Number of entries (default: 30)'),
       level: z.enum(['emergency','alert','critical','error','warning','notice','info','debug']).optional().describe('Filter by log level'),
     },
-    async ({ cwd, limit, level }) => {
+    async ({ cwd: _cwd, limit, level }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'log', (limit ?? 30) * 2);
         const entries = rows.map(r => ({ uuid: r.uuid, created_at: r.created_at, ...parseContent(r) }))
@@ -396,10 +415,12 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_commands',
     'Browse Artisan commands captured by Telescope.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(100).optional().default(20).describe('Number of entries (default: 20)'),
     },
-    async ({ cwd, limit }) => {
+    async ({ cwd: _cwd, limit }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'command', limit ?? 20);
         if (rows.length === 0) return textResult('No command entries found.');
@@ -418,11 +439,13 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_jobs',
     'Browse queued jobs captured by Telescope (pending, processed, failed).',
     {
-      cwd:    z.string().describe('Laravel project root directory'),
+      cwd:    z.string().optional().describe('Laravel project root directory'),
       limit:  z.number().min(1).max(100).optional().default(20).describe('Number of entries (default: 20)'),
       status: z.enum(['pending','processed','failed']).optional().describe('Filter by job status'),
     },
-    async ({ cwd, limit, status }) => {
+    async ({ cwd: _cwd, limit, status }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'job', (limit ?? 20) * 2);
         const entries = rows.map(r => ({ uuid: r.uuid, created_at: r.created_at, ...parseContent(r) }))
@@ -444,11 +467,13 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_models',
     'Browse Eloquent model operations (created, updated, deleted) captured by Telescope.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(200).optional().default(30).describe('Number of entries (default: 30)'),
       model: z.string().optional().describe('Filter by model class name e.g. "User", "Post"'),
     },
-    async ({ cwd, limit, model }) => {
+    async ({ cwd: _cwd, limit, model }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'model', (limit ?? 30) * 3);
         const entries = rows.map(r => ({ uuid: r.uuid, created_at: r.created_at, ...parseContent(r) }))
@@ -470,10 +495,12 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_events',
     'Browse dispatched events captured by Telescope.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(200).optional().default(30).describe('Number of entries (default: 30)'),
     },
-    async ({ cwd, limit }) => {
+    async ({ cwd: _cwd, limit }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'event', limit ?? 30);
         if (rows.length === 0) return textResult('No event entries found.');
@@ -493,10 +520,12 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_mail',
     'Browse emails sent and captured by Telescope.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(100).optional().default(20).describe('Number of entries (default: 20)'),
     },
-    async ({ cwd, limit }) => {
+    async ({ cwd: _cwd, limit }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'mail', limit ?? 20);
         if (rows.length === 0) return textResult('No mail entries found.');
@@ -516,10 +545,12 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_schedule',
     'Browse scheduled task runs captured by Telescope.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(100).optional().default(20).describe('Number of entries (default: 20)'),
     },
-    async ({ cwd, limit }) => {
+    async ({ cwd: _cwd, limit }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'scheduled_task', limit ?? 20);
         if (rows.length === 0) return textResult('No scheduled task entries found.');
@@ -538,11 +569,13 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
   server.tool('telescope_cache',
     'Browse cache operations (hit, miss, set, forget) captured by Telescope.',
     {
-      cwd:    z.string().describe('Laravel project root directory'),
+      cwd:    z.string().optional().describe('Laravel project root directory'),
       limit:  z.number().min(1).max(200).optional().default(30).describe('Number of entries (default: 30)'),
       type:   z.enum(['hit','miss','set','forget']).optional().describe('Filter by cache operation type'),
     },
-    async ({ cwd, limit, type }) => {
+    async ({ cwd: _cwd, limit, type }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const rows = await queryEntries(cwd, 'cache', (limit ?? 30) * 2);
         const entries = rows.map(r => ({ uuid: r.uuid, created_at: r.created_at, ...parseContent(r) }))
@@ -565,9 +598,11 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
     'Get full details for a single Telescope entry by UUID. Returns complete content including stack traces, payloads, headers, etc.',
     {
       uuid: z.string().describe('Entry UUID from any telescope_* listing tool'),
-      cwd:  z.string().describe('Laravel project root directory'),
+      cwd:  z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ uuid, cwd }) => {
+    async ({ uuid, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const cfg = dbCfgFromEnv(cwd);
         const p1 = PLACEHOLDER(cfg.driver, 1);
@@ -594,8 +629,10 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
 
   server.tool('telescope_clear',
     'Clear all Telescope entries from the database (php artisan telescope:clear)',
-    { cwd: z.string().describe('Laravel project root directory') },
-    async ({ cwd }) => {
+    { cwd: z.string().optional().describe('Laravel project root directory') },
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'telescope:clear'], cwd);
         return textResult(result.stdout || result.stderr || 'Telescope entries cleared.');
@@ -607,9 +644,11 @@ export function registerTelescopeTools(server: McpServer, runner: CliRunner): vo
     'Delete old Telescope entries (php artisan telescope:prune --hours=N)',
     {
       hours: z.number().optional().describe('Delete entries older than N hours (default: 48)'),
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ hours, cwd }) => {
+    async ({ hours, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['artisan', 'telescope:prune'];
         if (hours) args.push('--hours=' + hours);

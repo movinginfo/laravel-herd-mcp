@@ -5,6 +5,7 @@ import * as path from 'path';
 import type { HerdConfig } from '../herd-detector';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 function readHerdConfig(herdConfig: HerdConfig): Record<string, unknown> {
   const cfgPath = path.join(path.dirname(herdConfig.binDir), 'config', 'config.json');
@@ -175,9 +176,11 @@ export function registerDumpsTools(server: McpServer, herdConfig: HerdConfig, ru
   server.tool('ray_install',
     'Install Spatie Ray debug package in a Laravel project (composer require spatie/laravel-ray --dev)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const req = runner.composer(['require', 'spatie/laravel-ray', '--dev', '--no-interaction'], cwd);
         if (req.exitCode !== 0) return textResult('composer require failed:\n' + (req.stdout || req.stderr));
@@ -194,9 +197,11 @@ export function registerDumpsTools(server: McpServer, herdConfig: HerdConfig, ru
   server.tool('ray_configure',
     'Show or update Spatie Ray configuration (config/ray.php) for a Laravel project',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'config:show', 'ray'], cwd);
         return textResult(result.stdout || result.stderr || 'Ray config not found. Run ray_install first.');
@@ -209,9 +214,11 @@ export function registerDumpsTools(server: McpServer, herdConfig: HerdConfig, ru
   server.tool('clockwork_install',
     'Install Clockwork debug toolbar in a Laravel project (itsgoingd/clockwork)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const req = runner.composer(['require', 'itsgoingd/clockwork', '--dev', '--no-interaction'], cwd);
         if (req.exitCode !== 0) return textResult('composer require failed:\n' + (req.stdout || req.stderr));

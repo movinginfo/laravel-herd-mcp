@@ -14,6 +14,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 // ── .env helpers ─────────────────────────────────────────────────────────────
 
@@ -101,9 +102,11 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_install',
     'Install Laravel Debugbar (fruitcake/laravel-debugbar --dev), publish config, and enable it in .env',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const lines: string[] = [];
 
@@ -132,9 +135,11 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_enable',
     'Enable Laravel Debugbar by setting DEBUGBAR_ENABLED=true in .env',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         setEnvValue(cwd, 'DEBUGBAR_ENABLED', 'true');
         return textResult('Debugbar ENABLED (DEBUGBAR_ENABLED=true).\nMake an HTTP request to your site — data will appear in storage/debugbar/.');
@@ -145,9 +150,11 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_disable',
     'Disable Laravel Debugbar by setting DEBUGBAR_ENABLED=false in .env',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         setEnvValue(cwd, 'DEBUGBAR_ENABLED', 'false');
         return textResult('Debugbar DISABLED (DEBUGBAR_ENABLED=false).\nNo new data will be collected. Existing storage files are kept.');
@@ -160,9 +167,11 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_status',
     'Show Laravel Debugbar status: installed, enabled, number of stored requests, storage size',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const composerLock = path.join(cwd, 'composer.lock');
         const installed = fs.existsSync(composerLock) &&
@@ -203,10 +212,12 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_requests',
     'List recent HTTP requests captured by Laravel Debugbar (from storage/debugbar/). Shows method, URL, duration, query count, memory, exceptions.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(100).optional().default(20).describe('Number of recent requests to show (default: 20)'),
     },
-    async ({ cwd, limit }) => {
+    async ({ cwd: _cwd, limit }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const files = listStorageFiles(cwd, limit ?? 20);
         if (files.length === 0) {
@@ -237,10 +248,12 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_request_detail',
     'Show full Debugbar data for a specific request: route, queries, timeline, views, auth, exceptions, cache, events.',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       id:  z.string().describe('Request ID from debugbar_requests (the filename without .json)'),
     },
-    async ({ cwd, id }) => {
+    async ({ cwd: _cwd, id }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const data = readStorageFile(cwd, id);
         const meta = data.__meta ?? {};
@@ -331,11 +344,13 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_queries',
     'Show all SQL queries from recent Debugbar requests. Highlights slow queries. Great for N+1 detection.',
     {
-      cwd:        z.string().describe('Laravel project root directory'),
+      cwd:        z.string().optional().describe('Laravel project root directory'),
       limit:      z.number().min(1).max(50).optional().default(10).describe('Number of recent requests to scan (default: 10)'),
       slow_only:  z.boolean().optional().describe('Show only slow queries'),
     },
-    async ({ cwd, limit, slow_only }) => {
+    async ({ cwd: _cwd, limit, slow_only }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const files = listStorageFiles(cwd, limit ?? 10);
         if (files.length === 0) return textResult('No debugbar data found. Enable debugbar and make some requests first.');
@@ -372,10 +387,12 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_exceptions',
     'Show all exceptions captured by Laravel Debugbar across recent requests.',
     {
-      cwd:   z.string().describe('Laravel project root directory'),
+      cwd:   z.string().optional().describe('Laravel project root directory'),
       limit: z.number().min(1).max(50).optional().default(20).describe('Number of recent requests to scan (default: 20)'),
     },
-    async ({ cwd, limit }) => {
+    async ({ cwd: _cwd, limit }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const files = listStorageFiles(cwd, limit ?? 20);
         if (files.length === 0) return textResult('No debugbar data found.');
@@ -406,9 +423,11 @@ export function registerDebugbarTools(server: McpServer, runner: CliRunner): voi
   server.tool('debugbar_clear',
     'Delete all stored Debugbar request files from storage/debugbar/',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const dir = storagePath(cwd);
         if (!fs.existsSync(dir)) return textResult('storage/debugbar/ does not exist — nothing to clear.');

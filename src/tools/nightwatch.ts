@@ -17,6 +17,7 @@ import * as path from 'path';
 import { spawnSync } from 'child_process';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 // ── .env helpers ──────────────────────────────────────────────────────────────
 
@@ -56,12 +57,14 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
     'nightwatch_install',
     'Install Laravel Nightwatch cloud monitoring. Runs composer require laravel/nightwatch, sets NIGHTWATCH_TOKEN, configures LOG_CHANNEL and request sampling rate in .env. Get your token from nightwatch.laravel.com.',
     {
-      cwd: z.string().describe('Laravel project root'),
+      cwd: z.string().optional().describe('Laravel project root'),
       token: z.string().describe('NIGHTWATCH_TOKEN from nightwatch.laravel.com (create a new application there first)'),
       log_channel: z.enum(['nightwatch', 'stack']).optional().describe('LOG_CHANNEL — use "nightwatch" for dedicated channel or "stack" to add to existing stack (default: nightwatch)'),
       request_sample_rate: z.number().min(0).max(1).optional().describe('NIGHTWATCH_REQUEST_SAMPLE_RATE — fraction of requests to capture (default: 0.1 = 10%)'),
     },
-    async ({ cwd, token, log_channel, request_sample_rate }) => {
+    async ({ cwd: _cwd, token, log_channel, request_sample_rate }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const install = runner.composer(['require', 'laravel/nightwatch'], cwd);
         if (install.exitCode !== 0) {
@@ -97,9 +100,11 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
     'nightwatch_status',
     'Check Laravel Nightwatch installation status, .env configuration, and run php artisan nightwatch:status to test agent connectivity and cloud ingest.',
     {
-      cwd: z.string().describe('Laravel project root'),
+      cwd: z.string().optional().describe('Laravel project root'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const installed = isInstalled(cwd);
         const enabled   = getEnvValue(cwd, 'NIGHTWATCH_ENABLED') ?? 'true';
@@ -139,9 +144,11 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
     'nightwatch_enable',
     'Enable Laravel Nightwatch monitoring by setting NIGHTWATCH_ENABLED=true in .env.',
     {
-      cwd: z.string().describe('Laravel project root'),
+      cwd: z.string().optional().describe('Laravel project root'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         setEnvValue(cwd, 'NIGHTWATCH_ENABLED', 'true');
         return textResult('Nightwatch enabled (NIGHTWATCH_ENABLED=true). Make sure the agent is running — use nightwatch_agent_start if needed.');
@@ -157,9 +164,11 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
     'nightwatch_disable',
     'Disable Laravel Nightwatch monitoring by setting NIGHTWATCH_ENABLED=false in .env. The agent process (if running) can be left as-is or stopped with nightwatch_agent_stop.',
     {
-      cwd: z.string().describe('Laravel project root'),
+      cwd: z.string().optional().describe('Laravel project root'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         setEnvValue(cwd, 'NIGHTWATCH_ENABLED', 'false');
         return textResult('Nightwatch disabled (NIGHTWATCH_ENABLED=false). No events will be sent. Use nightwatch_enable to re-enable.');
@@ -175,7 +184,7 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
     'nightwatch_configure',
     'Configure Laravel Nightwatch .env settings: token, log channel, sampling rates for requests/commands/jobs/exceptions, capture flags, ignore filters, agent address. Only provided fields are updated.',
     {
-      cwd: z.string().describe('Laravel project root'),
+      cwd: z.string().optional().describe('Laravel project root'),
       token: z.string().optional().describe('NIGHTWATCH_TOKEN from nightwatch.laravel.com'),
       log_channel: z.string().optional().describe('LOG_CHANNEL (nightwatch or stack)'),
       request_sample_rate: z.number().min(0).max(1).optional().describe('NIGHTWATCH_REQUEST_SAMPLE_RATE (0.0–1.0) — fraction of requests to sample'),
@@ -193,12 +202,14 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
       ingest_uri: z.string().optional().describe('NIGHTWATCH_INGEST_URI — agent address:port (default 127.0.0.1:2407)'),
       server_name: z.string().optional().describe('NIGHTWATCH_SERVER — server label shown in dashboard (default: hostname)'),
     },
-    async ({ cwd, token, log_channel, request_sample_rate, command_sample_rate,
+    async ({ cwd: _cwd, token, log_channel, request_sample_rate, command_sample_rate,
              scheduled_task_sample_rate, exception_sample_rate,
              capture_exception_source_code, capture_request_payload,
              ignore_queries, ignore_cache_events, ignore_mail,
              ignore_notifications, ignore_outgoing_requests,
              log_level, ingest_uri, server_name }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const changed: string[] = [];
 
@@ -245,9 +256,11 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
     'nightwatch_agent_start',
     'Start the Laravel Nightwatch agent in the background (php artisan nightwatch:agent). The agent must run continuously to buffer and forward events to nightwatch.laravel.com. Listens on port 2407 by default.',
     {
-      cwd: z.string().describe('Laravel project root'),
+      cwd: z.string().optional().describe('Laravel project root'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         if (!isInstalled(cwd)) {
           return errorResult('Nightwatch is not installed. Run nightwatch_install first.');
@@ -277,7 +290,7 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
     'nightwatch_agent_stop',
     'Stop all running Laravel Nightwatch agent processes (finds and kills php.exe processes running nightwatch:agent on Windows).',
     {
-      cwd: z.string().describe('Laravel project root (used to confirm project context)'),
+      cwd: z.string().optional().describe('Laravel project root (used to confirm project context)'),
     },
     async ({ cwd: _cwd }) => {
       try {

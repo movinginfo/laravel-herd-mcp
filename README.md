@@ -1,12 +1,12 @@
 # laravel-herd-mcp
 
-> **201 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
+> **204 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
 
 [![npm version](https://img.shields.io/npm/v/laravel-herd-mcp.svg)](https://www.npmjs.com/package/laravel-herd-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Laravel Herd](https://img.shields.io/badge/Laravel%20Herd-1.27%2B-red.svg)](https://herd.laravel.com)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blue.svg)](https://modelcontextprotocol.io)
-[![Tools](https://img.shields.io/badge/tools-201-brightgreen.svg)](tools.md)
+[![Tools](https://img.shields.io/badge/tools-204-brightgreen.svg)](tools.md)
 
 ---
 
@@ -29,7 +29,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **201 MCP tools** across 19 categories — [see full list →](tools.md)
+- **204 MCP tools** across 19 categories — [see full list →](tools.md)
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other MCP clients
 - **Auto-detects** your Herd installation, no manual path configuration needed
 - **Herd Free + Pro** — all Pro-only features degrade gracefully with clear messages
@@ -150,11 +150,12 @@ Connect your MCP client to `http://localhost:3333/sse`.
 
 ## Available Tools
 
-> **201 tools** in a single `laravel-herd` MCP server.
+> **204 tools** in a single `laravel-herd` MCP server.
 > 📄 **[Full tool reference → tools.md](tools.md)**
 
 | Category | Tools | Description |
 |----------|------:|-------------|
+| **Active Project** | 3 | Select active site — all tools default to it without explicit cwd |
 | **Herd Control** | 8 | Start/stop/restart, loopback, Herd manifest |
 | **Sites** | 16 | Park, link, proxy, share, browser, IDE |
 | **SSL / HTTPS** | 3 | Secure, unsecure, list certs |

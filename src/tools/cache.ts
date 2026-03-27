@@ -2,6 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 export function registerCacheTools(server: McpServer, runner: CliRunner): void {
 
@@ -10,9 +11,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('cache_clear',
     'Clear the entire application cache (php artisan cache:clear)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'cache:clear'], cwd);
         return textResult(result.stdout || result.stderr || 'Cache cleared.');
@@ -25,9 +28,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
     {
       key: z.string().describe('Cache key to remove e.g. "user.1.profile"'),
       store: z.string().optional().describe('Cache store e.g. "redis", "file", "database" (uses default if omitted)'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ key, store, cwd }) => {
+    async ({ key, store, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['cache:forget', key];
         if (store) args.push(store);
@@ -40,9 +45,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('cache_prune_stale_tags',
     'Remove stale cache tag entries from Redis (php artisan cache:prune-stale-tags)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'cache:prune-stale-tags'], cwd);
         return textResult(result.stdout || result.stderr || 'Stale tags pruned.');
@@ -53,9 +60,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('cache_table',
     'Create the database cache table migration (php artisan cache:table)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'cache:table'], cwd);
         return textResult(result.stdout || result.stderr || 'Cache table migration created.');
@@ -68,9 +77,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('config_cache',
     'Cache the framework config files for faster bootstrap (php artisan config:cache)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'config:cache'], cwd);
         return textResult(result.stdout || result.stderr || 'Config cached.');
@@ -81,9 +92,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('config_clear',
     'Clear the config cache (php artisan config:clear)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'config:clear'], cwd);
         return textResult(result.stdout || result.stderr || 'Config cache cleared.');
@@ -95,10 +108,12 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
     'Show all resolved configuration values or a specific key (php artisan config:show)',
     {
       config: z.string().optional().describe('Config key or file e.g. "app", "database.default", "cache.stores"'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       json: z.boolean().optional().describe('Output as JSON'),
     },
-    async ({ config, cwd, json }) => {
+    async ({ config, cwd: _cwd, json }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['config:show'];
         if (config) args.push(config);
@@ -114,9 +129,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('view_cache',
     'Compile all Blade templates (php artisan view:cache)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'view:cache'], cwd);
         return textResult(result.stdout || result.stderr || 'Views cached.');
@@ -127,9 +144,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('view_clear',
     'Clear compiled Blade view files (php artisan view:clear)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'view:clear'], cwd);
         return textResult(result.stdout || result.stderr || 'Compiled views cleared.');
@@ -142,9 +161,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('route_cache',
     'Create a route cache for faster route registration (php artisan route:cache)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'route:cache'], cwd);
         return textResult(result.stdout || result.stderr || 'Routes cached.');
@@ -155,9 +176,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('route_clear',
     'Clear the route cache (php artisan route:clear)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'route:clear'], cwd);
         return textResult(result.stdout || result.stderr || 'Route cache cleared.');
@@ -170,9 +193,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('event_cache',
     'Discover and cache all application events and listeners (php artisan event:cache)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'event:cache'], cwd);
         return textResult(result.stdout || result.stderr || 'Events cached.');
@@ -183,9 +208,11 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('event_clear',
     'Clear all cached events and listeners (php artisan event:clear)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.php(['artisan', 'event:clear'], cwd);
         return textResult(result.stdout || result.stderr || 'Event cache cleared.');
@@ -196,10 +223,12 @@ export function registerCacheTools(server: McpServer, runner: CliRunner): void {
   server.tool('event_list',
     'List all application events and their listeners (php artisan event:list)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       event: z.string().optional().describe('Filter by event name'),
     },
-    async ({ cwd, event }) => {
+    async ({ cwd: _cwd, event }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['event:list'];
         if (event) args.push('--event=' + event);

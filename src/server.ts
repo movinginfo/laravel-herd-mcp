@@ -31,6 +31,7 @@ import { registerTelescopeTools } from './tools/telescope.js';
 import { registerNightwatchTools } from './tools/nightwatch.js';
 import { registerForgeTools } from './tools/forge.js';
 import { registerSetupTools, registerStatusTools, registerPatchHerdUiTool } from './tools/setup.js';
+import { registerProjectTools } from './tools/project.js';
 
 export interface ServerOptions {
   herdPath?: string;
@@ -43,10 +44,11 @@ export function createServer(options: ServerOptions = {}): McpServer {
 
   const server = new McpServer({
     name: 'laravel-herd-mcp',
-    version: '0.1.20',
+    version: '0.1.21',
   });
 
   // Register all tool groups
+  registerProjectTools(server, runner);
   registerSitesTools(server, client, runner);
   registerParksTools(server, runner);
   registerLinksTools(server, runner);

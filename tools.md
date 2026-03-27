@@ -1,8 +1,18 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **201 tools** across 19 categories. All tools are available in the single `laravel-herd` MCP server.
+> **204 tools** across 19 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
+
+---
+
+## Active Project
+
+| Tool | Description |
+|------|-------------|
+| `project_select` | Select the active Laravel project by site name — all tools then default to it (no cwd needed per call) |
+| `project_current` | Show the currently active project name and path |
+| `project_clear` | Clear the active project selection |
 
 ---
 

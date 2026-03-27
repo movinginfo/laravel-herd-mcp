@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type { CliRunner } from '../cli-runner';
 import { textResult, errorResult } from '../tool-result';
+import { resolveCwd, NO_PROJECT_MSG } from '../active-project.js';
 
 /** Parse a .env file into a key→value map (handles quoted values, comments). */
 function parseEnv(envPath: string): Record<string, string> {
@@ -31,9 +32,11 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
   server.tool('db_info',
     'Read database connection details from a Laravel project .env file (driver, host, port, database, username)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const envPath = path.join(cwd, '.env');
         if (!fs.existsSync(envPath)) {
@@ -76,11 +79,13 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
   server.tool('db_show',
     'Show database summary: tables, size, engine, connection info (php artisan db:show)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       connection: z.string().optional().describe('Database connection name e.g. "mysql", "sqlite" (uses default if omitted)'),
       json: z.boolean().optional().describe('Output as JSON'),
     },
-    async ({ cwd, connection, json }) => {
+    async ({ cwd: _cwd, connection, json }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['db:show'];
         if (connection) args.push('--database=' + connection);
@@ -95,11 +100,13 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
     'Show detailed info about a database table — columns, indexes, foreign keys (php artisan db:table)',
     {
       table: z.string().describe('Table name e.g. "users", "orders"'),
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       connection: z.string().optional().describe('Database connection name'),
       json: z.boolean().optional().describe('Output as JSON'),
     },
-    async ({ table, cwd, connection, json }) => {
+    async ({ table, cwd: _cwd, connection, json }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['db:table', table];
         if (connection) args.push('--database=' + connection);
@@ -113,11 +120,13 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
   server.tool('db_wipe',
     'Drop all tables, views and types from the database (php artisan db:wipe)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       connection: z.string().optional().describe('Database connection to wipe'),
       force: z.boolean().optional().describe('Force wipe in production'),
     },
-    async ({ cwd, connection, force }) => {
+    async ({ cwd: _cwd, connection, force }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['db:wipe', '--no-interaction'];
         if (connection) args.push('--database=' + connection);
@@ -131,12 +140,14 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
   server.tool('db_seed',
     'Seed the database with records (php artisan db:seed) — alias for artisan_db_seed with connection support',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       seeder: z.string().optional().describe('Specific seeder class e.g. "UserSeeder"'),
       connection: z.string().optional().describe('Database connection to use'),
       force: z.boolean().optional().describe('Force seed in production'),
     },
-    async ({ cwd, seeder, connection, force }) => {
+    async ({ cwd: _cwd, seeder, connection, force }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['db:seed'];
         if (seeder) args.push('--class=' + seeder);
@@ -151,11 +162,13 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
   server.tool('db_monitor',
     'Monitor database connection counts and alert when thresholds are exceeded (php artisan db:monitor)',
     {
-      cwd: z.string().describe('Laravel project root directory'),
+      cwd: z.string().optional().describe('Laravel project root directory'),
       databases: z.string().optional().describe('Comma-separated connection names to monitor e.g. "mysql,sqlite"'),
       max: z.number().optional().describe('Max connections before alert (default: 100)'),
     },
-    async ({ cwd, databases, max }) => {
+    async ({ cwd: _cwd, databases, max }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['db:monitor'];
         if (databases) args.push('--databases=' + databases);
@@ -175,9 +188,11 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
     {
       sql:        z.string().describe('SQL statement(s) to execute — piped to php artisan db as stdin'),
       connection: z.string().optional().describe('Named connection from config/database.php e.g. "mysql", "pgsql", "sqlite", "tenant" (uses default if omitted)'),
-      cwd:        z.string().describe('Laravel project root directory'),
+      cwd:        z.string().optional().describe('Laravel project root directory'),
     },
-    async ({ sql, connection, cwd }) => {
+    async ({ sql, connection, cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const args = ['artisan', 'db'];
         if (connection) args.push(connection);
@@ -194,7 +209,9 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
     {
       cwd: z.string().optional().describe('Project directory containing herd.yml'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.herd(['init', '--no-interaction'], cwd);
         return textResult(result.stdout || result.stderr || 'Herd manifest applied.');
@@ -207,7 +224,9 @@ export function registerDatabaseTools(server: McpServer, runner: CliRunner): voi
     {
       cwd: z.string().optional().describe('Project directory'),
     },
-    async ({ cwd }) => {
+    async ({ cwd: _cwd }) => {
+      const cwd = resolveCwd(_cwd);
+      if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
         const result = runner.herd(['init:fresh', '--no-interaction'], cwd);
         return textResult(result.stdout || result.stderr || 'Herd manifest created.');
