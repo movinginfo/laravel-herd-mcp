@@ -385,9 +385,44 @@ MIT — see [LICENSE](LICENSE)
 
 ## Related
 
-- [Laravel Herd](https://herd.laravel.com) — The PHP development environment this server controls
-- [tools.md](tools.md) — Complete reference of all 138 tools
-- [Model Context Protocol](https://modelcontextprotocol.io) — The open protocol powering this integration
-- [Claude Desktop](https://claude.ai/download) — AI assistant that uses this server
-- [Laravel Boost](https://github.com/laravel/boost) — Official Laravel AI coding guidelines
-- [laravel-herd-worktree](https://github.com/harris21/laravel-herd-worktree) — Claude skill for Herd git worktrees
+### Core
+
+| Repo / Project | Role |
+|---|---|
+| [laravel/herd](https://herd.laravel.com) | The PHP development environment this server controls |
+| [modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) · [modelcontextprotocol.io](https://modelcontextprotocol.io) | MCP SDK and protocol spec powering the integration |
+| [Claude Desktop](https://claude.ai/download) · [Claude Code](https://claude.ai/claude-code) | AI clients that connect to this MCP server |
+
+### Laravel packages integrated
+
+| Package | Tools |
+|---|---|
+| [laravel/telescope](https://github.com/laravel/telescope) | `telescope_*` — 19 tools: requests, queries, exceptions, jobs, mail, events… |
+| [laravel/pulse](https://github.com/laravel/pulse) | `pulse_*` — 16 tools: slow requests/queries/jobs, exceptions, cache, servers… |
+| [laravel/nightwatch](https://github.com/laravel/nightwatch) | `nightwatch_*` — 7 tools: install, agent start/stop, enable/disable, configure |
+| [laravel/horizon](https://github.com/laravel/horizon) | `horizon_*` — status, pause, continue, terminate |
+| [laravel/boost](https://github.com/laravel/boost) | `boost_*` — AI coding guidelines, MCP config |
+| [laravel/forge-cli](https://github.com/laravel/forge-cli) | `forge_*` — 25 tools: deploy, env, daemons, nginx, php-fpm |
+| [fruitcake/laravel-debugbar](https://github.com/barryvdh/laravel-debugbar) | `debugbar_*` — 9 tools: requests, queries, exceptions, timeline |
+| [spatie/laravel-ray](https://github.com/spatie/laravel-ray) | `ray_*` — install, configure |
+| [itsgoingd/clockwork](https://github.com/itsgoingd/clockwork) | `clockwork_install` |
+
+### Node.js drivers (direct DB access)
+
+| Package | Purpose |
+|---|---|
+| [mysql2](https://github.com/sidorares/node-mysql2) | MySQL / MariaDB native driver — no PHP needed |
+| [pg](https://github.com/brianc/node-postgres) | PostgreSQL native driver |
+| [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) | SQLite native driver (optional) |
+
+### Transport & schema
+
+| Package | Purpose |
+|---|---|
+| [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) | MCP server SDK (stdio + SSE) |
+| [express](https://github.com/expressjs/express) | HTTP server for `--http` / SSE mode |
+| [zod](https://github.com/colinhacks/zod) | Runtime schema validation for all tool inputs |
+
+### Tools reference
+
+- [tools.md](tools.md) — Complete reference of all 218 tools across 20 categories
