@@ -55,39 +55,75 @@ export function registerNightwatchTools(server: McpServer, runner: CliRunner): v
 
   server.tool(
     'nightwatch_install',
-    'Install Laravel Nightwatch cloud monitoring. Runs composer require laravel/nightwatch, sets NIGHTWATCH_TOKEN, configures LOG_CHANNEL and request sampling rate in .env. Get your token from nightwatch.laravel.com.',
+    'Install Laravel Nightwatch cloud monitoring in one step: composer require, .env config (token, log channel, sampling, server name), and optional agent start. Get your token from nightwatch.laravel.com.',
     {
       cwd: z.string().optional().describe('Laravel project root'),
       token: z.string().describe('NIGHTWATCH_TOKEN from nightwatch.laravel.com (create a new application there first)'),
-      log_channel: z.enum(['nightwatch', 'stack']).optional().describe('LOG_CHANNEL — use "nightwatch" for dedicated channel or "stack" to add to existing stack (default: nightwatch)'),
+      log_channel: z.enum(['nightwatch', 'stack']).optional().describe('LOG_CHANNEL — "nightwatch" for dedicated channel or "stack" to add to existing stack (default: nightwatch)'),
       request_sample_rate: z.number().min(0).max(1).optional().describe('NIGHTWATCH_REQUEST_SAMPLE_RATE — fraction of requests to capture (default: 0.1 = 10%)'),
+      server_name: z.string().optional().describe('NIGHTWATCH_SERVER — label shown in Nightwatch dashboard (default: hostname, e.g. "myapp.test")'),
+      start_agent: z.boolean().optional().describe('Start the Nightwatch agent immediately after install (default: true)'),
     },
-    async ({ cwd: _cwd, token, log_channel, request_sample_rate }) => {
+    async ({ cwd: _cwd, token, log_channel, request_sample_rate, server_name, start_agent }) => {
       const cwd = resolveCwd(_cwd);
       if (!cwd) return errorResult(NO_PROJECT_MSG);
       try {
-        const install = runner.composer(['require', 'laravel/nightwatch'], cwd);
-        if (install.exitCode !== 0) {
-          return errorResult(`composer require failed:\n${install.stderr || install.stdout}`);
+        const lines: string[] = [];
+        const alreadyInstalled = isInstalled(cwd);
+
+        // ── 1. Composer install (skip if already installed) ──────────────────
+        if (alreadyInstalled) {
+          lines.push('Package: laravel/nightwatch already installed — skipping composer require.');
+        } else {
+          lines.push('Installing laravel/nightwatch via composer...');
+          const install = runner.composer(['require', 'laravel/nightwatch'], cwd);
+          // Check composer.lock instead of exit code — post-install scripts (e.g. boost:update)
+          // may fail with non-zero exit even when Nightwatch itself installed correctly.
+          const nowInstalled = isInstalled(cwd);
+          if (!nowInstalled) {
+            return errorResult(`composer require failed:\n${install.stderr || install.stdout}`);
+          }
+          lines.push('Package: laravel/nightwatch installed successfully.');
         }
 
+        // ── 2. Configure .env ────────────────────────────────────────────────
+        const channel = log_channel ?? 'nightwatch';
+        const sampleRate = request_sample_rate ?? 0.1;
         setEnvValue(cwd, 'NIGHTWATCH_TOKEN', token);
-        setEnvValue(cwd, 'LOG_CHANNEL', log_channel ?? 'nightwatch');
-        setEnvValue(cwd, 'NIGHTWATCH_REQUEST_SAMPLE_RATE', String(request_sample_rate ?? 0.1));
+        setEnvValue(cwd, 'LOG_CHANNEL', channel);
+        setEnvValue(cwd, 'NIGHTWATCH_REQUEST_SAMPLE_RATE', String(sampleRate));
         setEnvValue(cwd, 'NIGHTWATCH_ENABLED', 'true');
+        if (server_name) setEnvValue(cwd, 'NIGHTWATCH_SERVER', server_name);
 
-        return textResult([
-          'Nightwatch installed successfully.',
-          '',
-          'Env configured:',
-          `  NIGHTWATCH_TOKEN=${token.slice(0, 8)}...`,
-          `  LOG_CHANNEL=${log_channel ?? 'nightwatch'}`,
-          `  NIGHTWATCH_REQUEST_SAMPLE_RATE=${request_sample_rate ?? 0.1}`,
-          `  NIGHTWATCH_ENABLED=true`,
-          '',
-          'Next step: start the agent with nightwatch_agent_start',
-          'Then visit https://nightwatch.laravel.com to view your dashboard.',
-        ].join('\n'));
+        lines.push('');
+        lines.push('Env configured:');
+        lines.push(`  NIGHTWATCH_TOKEN=${token.slice(0, 8)}...${token.slice(-4)}`);
+        lines.push(`  NIGHTWATCH_ENABLED=true`);
+        lines.push(`  LOG_CHANNEL=${channel}`);
+        lines.push(`  NIGHTWATCH_REQUEST_SAMPLE_RATE=${sampleRate} (${sampleRate * 100}% of requests)`);
+        if (server_name) lines.push(`  NIGHTWATCH_SERVER=${server_name}`);
+
+        // ── 3. Start agent (default: true) ───────────────────────────────────
+        const shouldStart = start_agent !== false;
+        if (shouldStart) {
+          try {
+            const artisan = path.join(cwd, 'artisan');
+            const pid = runner.phpDetached([artisan, 'nightwatch:agent'], cwd);
+            lines.push('');
+            lines.push(`Agent: started in background (PID: ${pid}) on 127.0.0.1:2407`);
+          } catch {
+            lines.push('');
+            lines.push('Agent: could not start automatically — run nightwatch_agent_start manually.');
+          }
+        } else {
+          lines.push('');
+          lines.push('Agent: not started — run nightwatch_agent_start when ready.');
+        }
+
+        lines.push('');
+        lines.push('Nightwatch is ready. Visit https://nightwatch.laravel.com to view your dashboard.');
+
+        return textResult(lines.join('\n'));
       } catch (e: unknown) {
         return errorResult(e instanceof Error ? e.message : String(e));
       }
