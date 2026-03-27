@@ -1,12 +1,12 @@
 # laravel-herd-mcp
 
-> **204 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
+> **218 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
 
 [![npm version](https://img.shields.io/npm/v/laravel-herd-mcp.svg)](https://www.npmjs.com/package/laravel-herd-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Laravel Herd](https://img.shields.io/badge/Laravel%20Herd-1.27%2B-red.svg)](https://herd.laravel.com)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blue.svg)](https://modelcontextprotocol.io)
-[![Tools](https://img.shields.io/badge/tools-204-brightgreen.svg)](tools.md)
+[![Tools](https://img.shields.io/badge/tools-218-brightgreen.svg)](tools.md)
 
 ---
 
@@ -29,7 +29,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **204 MCP tools** across 19 categories — [see full list →](tools.md)
+- **218 MCP tools** across 20 categories — [see full list →](tools.md)
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other MCP clients
 - **Auto-detects** your Herd installation, no manual path configuration needed
 - **Herd Free + Pro** — all Pro-only features degrade gracefully with clear messages
@@ -150,7 +150,7 @@ Connect your MCP client to `http://localhost:3333/sse`.
 
 ## Available Tools
 
-> **204 tools** in a single `laravel-herd` MCP server.
+> **218 tools** in a single `laravel-herd` MCP server.
 > 📄 **[Full tool reference → tools.md](tools.md)**
 
 | Category | Tools | Description |
@@ -169,6 +169,7 @@ Connect your MCP client to `http://localhost:3333/sse`.
 | **Queue & Schedule** | 19 | Failed jobs, active queue, batches, schedule, Horizon |
 | **Dumps & Debugging** | 12 | Herd interceptor, watchers, Xdebug, Ray, Clockwork |
 | **Laravel Telescope** | 19 | Install, enable/disable, watchers, all 18 entry-type browsers *(laravel/telescope)* |
+| **Laravel Pulse** | 14 | Install, enable/disable, server metrics, slow requests/queries/jobs, exceptions, cache, queues, users *(laravel/pulse)* |
 | **Laravel Nightwatch** | 7 | Install, enable/disable, agent start/stop, configure sampling *(laravel/nightwatch)* |
 | **Artisan** | 10 | Generic + `make:*`, migrate, routes, optimize, seed |
 | **Composer** | 12 | require, remove, install, update, search, scripts |
@@ -229,6 +230,7 @@ Claude ──► laravel-herd-mcp ──► Herd HTTP API (127.0.0.1:9001)   —
                              └──► Native DB drivers               — mysql2, pg, better-sqlite3
                              └──► storage/debugbar/*.json         — Debugbar request profiling
                              └──► telescope_entries DB table      — Telescope watcher data
+                             └──► pulse_* DB tables              — Pulse performance metrics
 ```
 
 > **Non-ASCII path fix:** `herd.bat` calls bare `php` which breaks when the Windows user profile path contains non-ASCII characters (e.g. Cyrillic). This package bypasses `herd.bat` entirely and calls `php.exe herd.phar` directly, resolving the PHP executable from Herd's own `config.json`.
@@ -260,8 +262,22 @@ Laravel Herd ships a built-in `herd-mcp.phar` (PHP, stdio only). `laravel-herd-m
 | Queue & Schedule | ❌ | ✅ |
 | Dump interceptor / watchers | ❌ | ✅ |
 | Ray / Telescope / Clockwork | ❌ | ✅ |
+| Laravel Pulse / Nightwatch | ❌ | ✅ |
 | Laravel Boost integration | ❌ | ✅ |
 | Non-ASCII user profile paths | ❌ | ✅ |
+
+---
+
+## Herd UI Patching (`patch_herd_ui`)
+
+> **As of v0.1.22 you no longer need `patch_herd_ui`.**
+
+The `patch_herd_ui` tool patches Herd's `app.asar` to add a *Claude Code* row in the Integrations tab. This was needed in early versions to get the MCP entry visible inside Herd's UI. Since v0.1.22:
+
+- The `setup_integrations` tool writes the correct config to Claude Desktop and Claude Code directly — no UI patching needed.
+- Herd's own integration support has improved and the entry is visible without patching.
+
+`patch_herd_ui` is kept in the plugin **for educational purposes only** — it demonstrates how Electron `app.asar` files can be extracted and repackaged. Do not run it on production Herd installations as it must be re-applied after every Herd update.
 
 ---
 

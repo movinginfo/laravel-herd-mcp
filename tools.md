@@ -1,6 +1,6 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **204 tools** across 19 categories. All tools are available in the single `laravel-herd` MCP server.
+> **218 tools** across 20 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
 
@@ -418,6 +418,33 @@
 | `forge_php_status` | Show PHP-FPM status (by version) |
 | `forge_php_restart` | Restart PHP-FPM (by version) |
 | `forge_php_logs` | View PHP-FPM logs (by version) |
+
+---
+
+## Laravel Pulse
+
+> Real-time application performance monitoring built into Laravel — stores data locally in `pulse_entries`, `pulse_aggregates`, and `pulse_values` tables.
+> Dashboard available at `/pulse` (Livewire). No external service required.
+> 📦 Requires `laravel/pulse` (`pulse_install` handles this).
+
+| Tool | Description |
+|------|-------------|
+| `pulse_install` | Install `laravel/pulse`, publish config + migrations, run migrate, enable in `.env` |
+| `pulse_status` | Check installation, DB tables, enabled state, and entry counts per recorder type |
+| `pulse_enable` | Enable Pulse recording (`PULSE_ENABLED=true` in `.env`) |
+| `pulse_disable` | Disable Pulse recording (`PULSE_ENABLED=false` in `.env`) |
+| `pulse_check_start` | Start `php artisan pulse:check` in background — records server CPU/memory/storage |
+| `pulse_check_stop` | Stop all running `pulse:check` background processes |
+| `pulse_purge` | Clear all or specific Pulse data (`php artisan pulse:purge [--type=...]`) |
+| `pulse_servers` | Show server CPU, memory, and disk metrics (requires `pulse:check` running) |
+| `pulse_slow_requests` | List slow HTTP requests with route, duration, and occurrence count |
+| `pulse_slow_queries` | List slow SQL queries with statement, duration, and occurrence count |
+| `pulse_slow_jobs` | List slow queue jobs with class, duration, and occurrence count |
+| `pulse_slow_outgoing` | List slow outgoing HTTP requests (via Laravel HTTP client) |
+| `pulse_exceptions` | List exceptions grouped by class/message with occurrence counts |
+| `pulse_queues` | Show queue throughput activity per queue name |
+| `pulse_cache` | Show cache hit/miss rate and breakdown by key prefix |
+| `pulse_users` | Show most active users by request count |
 
 ---
 
