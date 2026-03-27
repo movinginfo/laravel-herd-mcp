@@ -1,12 +1,12 @@
 # laravel-herd-mcp
 
-> **194 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
+> **201 MCP tools** — Give Claude full control over your [Laravel Herd](https://herd.laravel.com) development environment on Windows.
 
 [![npm version](https://img.shields.io/npm/v/laravel-herd-mcp.svg)](https://www.npmjs.com/package/laravel-herd-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Laravel Herd](https://img.shields.io/badge/Laravel%20Herd-1.27%2B-red.svg)](https://herd.laravel.com)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blue.svg)](https://modelcontextprotocol.io)
-[![Tools](https://img.shields.io/badge/tools-194-brightgreen.svg)](tools.md)
+[![Tools](https://img.shields.io/badge/tools-201-brightgreen.svg)](tools.md)
 
 ---
 
@@ -29,7 +29,7 @@ This server complements Herd's built-in `herd-mcp.phar` by adding **HTTP/SSE tra
 
 ## Features
 
-- **194 MCP tools** across 18 categories — [see full list →](tools.md)
+- **201 MCP tools** across 19 categories — [see full list →](tools.md)
 - **Dual transport** — stdio for Claude Desktop, HTTP/SSE for other MCP clients
 - **Auto-detects** your Herd installation, no manual path configuration needed
 - **Herd Free + Pro** — all Pro-only features degrade gracefully with clear messages
@@ -150,7 +150,7 @@ Connect your MCP client to `http://localhost:3333/sse`.
 
 ## Available Tools
 
-> **194 tools** in a single `laravel-herd` MCP server.
+> **201 tools** in a single `laravel-herd` MCP server.
 > 📄 **[Full tool reference → tools.md](tools.md)**
 
 | Category | Tools | Description |
@@ -161,13 +161,14 @@ Connect your MCP client to `http://localhost:3333/sse`.
 | **PHP** | 9 | Versions, isolation, `php.ini` |
 | **Node / NVM** | 3 | Install, list, switch Node versions |
 | **Services** | 8 | MySQL, Redis, PostgreSQL, Minio *(Herd Pro)* |
-| **Database (artisan)** | 7 | `.env` info, GUI client, `db:show`, `db:table`, wipe, seed, monitor |
+| **Database (artisan)** | 8 | `.env` info, GUI client, `db:show`, `db:table`, wipe, seed, monitor, db CLI |
 | **Laravel Debugbar** | 9 | Install, enable/disable, read queries/exceptions/timeline *(fruitcake/laravel-debugbar)* |
 | **Direct Database Client** | 7 | Native SQL queries for MySQL, MariaDB, PostgreSQL, SQLite — local or remote |
 | **Cache** | 14 | App cache, config, view, route, event cache |
 | **Queue & Schedule** | 19 | Failed jobs, active queue, batches, schedule, Horizon |
 | **Dumps & Debugging** | 12 | Herd interceptor, watchers, Xdebug, Ray, Clockwork |
 | **Laravel Telescope** | 19 | Install, enable/disable, watchers, all 18 entry-type browsers *(laravel/telescope)* |
+| **Laravel Nightwatch** | 7 | Install, enable/disable, agent start/stop, configure sampling *(laravel/nightwatch)* |
 | **Artisan** | 10 | Generic + `make:*`, migrate, routes, optimize, seed |
 | **Composer** | 12 | require, remove, install, update, search, scripts |
 | **Laravel Boost** | 5 | AI coding guidelines *(laravel/boost)* |

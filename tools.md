@@ -1,6 +1,6 @@
 # laravel-herd-mcp — All MCP Tools
 
-> **194 tools** across 18 categories. All tools are available in the single `laravel-herd` MCP server.
+> **201 tools** across 19 categories. All tools are available in the single `laravel-herd` MCP server.
 >
 > Legend: ⚠️ Pro = requires Herd Pro license · 📦 Pkg = requires optional Laravel package
 
@@ -411,6 +411,24 @@
 
 ---
 
+## Laravel Nightwatch
+
+> Cloud monitoring service — requires a free account at [nightwatch.laravel.com](https://nightwatch.laravel.com) and a `NIGHTWATCH_TOKEN`.
+> The agent (`php artisan nightwatch:agent`) must run continuously to forward events to the cloud dashboard.
+> 📦 Requires `laravel/nightwatch` (`nightwatch_install` handles this).
+
+| Tool | Description |
+|------|-------------|
+| `nightwatch_install` | Install `laravel/nightwatch` via composer and configure `.env` (token, log channel, sample rate) |
+| `nightwatch_status` | Show installation status, `.env` config, and run `php artisan nightwatch:status` to test cloud connectivity |
+| `nightwatch_enable` | Enable monitoring (`NIGHTWATCH_ENABLED=true` in `.env`) |
+| `nightwatch_disable` | Disable monitoring (`NIGHTWATCH_ENABLED=false` in `.env`) |
+| `nightwatch_configure` | Set any Nightwatch `.env` var: token, sampling rates, capture flags, ignore filters, agent address |
+| `nightwatch_agent_start` | Start `php artisan nightwatch:agent` as a background process |
+| `nightwatch_agent_stop` | Stop all running Nightwatch agent processes |
+
+---
+
 ## Setup & Integration
 
 | Tool | Description |
@@ -434,12 +452,14 @@
 | Database (artisan) | 8 | .env info, GUI client, artisan db:*, db CLI |
 | Cache | 14 | Application, config, view, route, event |
 | Queue & Schedule | 19 | Failed jobs, active queue, batches, schedule, Horizon |
-| Dumps & Debugging | 16 | Herd interceptor, watchers, Xdebug, Ray, Telescope |
+| Dumps & Debugging | 12 | Herd interceptor, watchers, Xdebug, Ray, Clockwork |
 | Artisan | 10 | Generic + common workflows |
 | Composer | 12 | Full dependency management |
 | Laravel Boost | 5 | 📦 AI coding guidelines |
 | Laravel Debugbar | 9 | 📦 Install, toggle, read queries/exceptions/timeline |
 | Direct Database Client | 7 | Native SQL for MySQL/MariaDB/PostgreSQL/SQLite |
+| Laravel Telescope | 19 | 📦 Install, watchers, all 18 entry-type browsers |
+| Laravel Nightwatch | 7 | 📦 Cloud monitoring — install, agent, enable/disable, configure |
 | Laravel Forge CLI | 25 | Remote server management via forge CLI |
 | Setup & Integration | 3 | Claude Desktop/Code/Herd config |
-| **Total** | **180** | |
+| **Total** | **201** | |

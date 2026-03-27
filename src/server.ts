@@ -28,6 +28,7 @@ import { registerBoostTools } from './tools/boost.js';
 import { registerDbClientTools } from './tools/db-client.js';
 import { registerDebugbarTools } from './tools/debugbar.js';
 import { registerTelescopeTools } from './tools/telescope.js';
+import { registerNightwatchTools } from './tools/nightwatch.js';
 import { registerForgeTools } from './tools/forge.js';
 import { registerSetupTools, registerStatusTools, registerPatchHerdUiTool } from './tools/setup.js';
 
@@ -42,7 +43,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
 
   const server = new McpServer({
     name: 'laravel-herd-mcp',
-    version: '0.1.19',
+    version: '0.1.20',
   });
 
   // Register all tool groups
@@ -70,6 +71,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
   registerDbClientTools(server);
   registerDebugbarTools(server, runner);
   registerTelescopeTools(server, runner);
+  registerNightwatchTools(server, runner);
   registerForgeTools(server, runner);
   registerSetupTools(server, herdConfig, runner);
   registerStatusTools(server, herdConfig);

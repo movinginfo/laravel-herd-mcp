@@ -128,6 +128,10 @@ export class CliRunner {
     return 'forge';
   }
 
+  phpDetached(args: string[], cwd?: string): number {
+    return this.spawnDetached(this.config.phpExe, args, cwd);
+  }
+
   spawnDetached(exe: string, args: string[], cwd?: string): number {
     const child = spawn(exe, args, {
       cwd,
