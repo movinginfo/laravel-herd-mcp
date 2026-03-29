@@ -25,6 +25,7 @@ import { registerCacheTools } from './tools/cache.js';
 import { registerQueueTools } from './tools/queue.js';
 import { registerDumpsTools } from './tools/dumps.js';
 import { registerBoostTools } from './tools/boost.js';
+import { registerSkillsTools } from './tools/skills.js';
 import { registerDbClientTools } from './tools/db-client.js';
 import { registerDebugbarTools } from './tools/debugbar.js';
 import { registerTelescopeTools } from './tools/telescope.js';
@@ -87,7 +88,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
   const server = new McpServer({
     name:        'laravel-herd-mcp',
     title:       meta.title,
-    version:     '0.1.28',
+    version:     '0.1.29',
     description: meta.description,
     websiteUrl:  'https://github.com/movinginfo/laravel-herd-mcp',
   });
@@ -116,7 +117,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
   }
 
   // ── GROUP: laravel ────────────────────────────────────────────────────────────
-  // Artisan, composer, database, cache, queues, boost
+  // Artisan, composer, database, cache, queues, boost, skills
   if (in_('laravel')) {
     registerArtisanTools(server, runner);      // generic artisan + make:*, migrate, routes, optimize
     registerComposerTools(server, runner);     // require, remove, install, update, search, scripts
@@ -125,6 +126,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
     registerCacheTools(server, runner);        // app/config/view/route/event cache
     registerQueueTools(server, runner);        // failed jobs, batches, schedule, Horizon
     registerBoostTools(server, runner);        // AI coding guidelines
+    registerSkillsTools(server, runner);       // skills.laravel.cloud directory
     registerDebugTools(server, runner);        // Xdebug debug sessions
     registerDevtoolsTools(server, runner);     // run_tinker, run_php_with_debug/coverage
   }
