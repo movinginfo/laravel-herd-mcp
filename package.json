@@ -1,6 +1,6 @@
 {
   "name": "laravel-herd-mcp",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "description": "218 MCP tools for full Laravel Herd control — sites, PHP, SSL, Pulse, Telescope, Nightwatch, Forge CLI and more. Works on Windows and macOS.",
   "main": "dist/index.js",
   "bin": {
