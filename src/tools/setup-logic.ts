@@ -107,7 +107,9 @@ function getClaudeDesktopConfigPath(): string {
 }
 
 function getClaudeCodeConfigPath(): string {
-  return path.join(os.homedir(), '.claude', 'settings.json');
+  // User-scope MCP servers live in ~/.claude.json (NOT ~/.claude/settings.json)
+  // https://code.claude.com/docs/en/settings — "MCP servers | ~/.claude.json"
+  return path.join(os.homedir(), '.claude.json');
 }
 
 function getVsCodeConfigPath(): string {

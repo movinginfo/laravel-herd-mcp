@@ -34,6 +34,7 @@ import { registerPulseTools } from './tools/pulse.js';
 import { registerForgeTools } from './tools/forge.js';
 import { registerSetupTools, registerStatusTools, registerPatchHerdUiTool } from './tools/setup.js';
 import { registerProjectTools } from './tools/project.js';
+import { registerClaudeCodeTools } from './tools/claude-code.js';
 
 /**
  * Tool groups for clients that enforce a per-server tool limit (e.g. Antigravity max=100).
@@ -88,7 +89,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
   const server = new McpServer({
     name:        'laravel-herd-mcp',
     title:       meta.title,
-    version:     '0.1.29',
+    version:     '0.1.30',
     description: meta.description,
     websiteUrl:  'https://github.com/movinginfo/laravel-herd-mcp',
   });
@@ -127,6 +128,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
     registerQueueTools(server, runner);        // failed jobs, batches, schedule, Horizon
     registerBoostTools(server, runner);        // AI coding guidelines
     registerSkillsTools(server, runner);       // skills.laravel.cloud directory
+    registerClaudeCodeTools(server);           // Claude Code / VS Code / Desktop integration
     registerDebugTools(server, runner);        // Xdebug debug sessions
     registerDevtoolsTools(server, runner);     // run_tinker, run_php_with_debug/coverage
   }
