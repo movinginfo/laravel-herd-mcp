@@ -89,7 +89,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
   const server = new McpServer({
     name:        'laravel-herd-mcp',
     title:       meta.title,
-    version:     '0.1.30',
+    version:     '0.1.31',
     description: meta.description,
     websiteUrl:  'https://github.com/movinginfo/laravel-herd-mcp',
   });

@@ -2,12 +2,20 @@
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { createServer } from './server.js';
 import { renderDashboard } from './dashboard.js';
+import { runCli, CLI_COMMANDS } from './cli.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+
+  // ── CLI mode ── route to terminal commands when first arg is a known command
+  const firstArg = args[0];
+  if (firstArg && CLI_COMMANDS.includes(firstArg)) {
+    await runCli(args);
+    process.exit(0);
+  }
 
   const httpFlag = args.includes('--http');
   const portFlag = args.find(a => a.startsWith('--port='));
